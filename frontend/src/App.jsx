@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { apiFetch, getApiBaseUrl } from './api'
 
 function App() {
   const [status, setStatus] = useState('Checking connection...')
@@ -7,9 +8,10 @@ function App() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
+  const apiBaseUrl = getApiBaseUrl()
 
   const loadAccounts = async () => {
-    const response = await fetch('/api/accounts')
+    const response = await apiFetch('/accounts')
     if (!response.ok) {
       throw new Error('Could not load accounts')
     }
@@ -21,16 +23,16 @@ function App() {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const pingResponse = await fetch('/api/ping')
+        const pingResponse = await apiFetch('/ping')
         if (!pingResponse.ok) {
           throw new Error('Core API not reachable')
         }
 
-        setStatus('Connected to core API')
+        setStatus('Connected to API')
         await loadAccounts()
       } catch {
         setStatus('Connection failed')
-        setError('Start the core app and confirm MySQL is running.')
+        setError('Start the core app or configure Supabase function URL.')
       }
     }
 
@@ -42,7 +44,7 @@ function App() {
     setError('')
 
     try {
-      const response = await fetch('/api/accounts', {
+      const response = await apiFetch('/accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ function App() {
       setEmail('')
       await loadAccounts()
     } catch {
-      setError('Failed to save account. Check backend logs for details.')
+      setError('Failed to save account. Check backend or Supabase logs for details.')
     }
   }
 
@@ -66,6 +68,7 @@ function App() {
     <main className="app">
       <h1>Portfolio Manager Connectivity Demo</h1>
       <p className="status">Backend status: {status}</p>
+      <p className="status">API base: {apiBaseUrl}</p>
 
       <section className="card">
         <h2>Create account (sample POST)</h2>
