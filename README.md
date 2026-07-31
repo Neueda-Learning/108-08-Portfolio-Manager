@@ -143,6 +143,32 @@ created_at
 
 Example:
 
+## Docker Setup
+
+Run the full stack using Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+* Frontend: http://localhost:5173
+* Core API: http://localhost:8080
+* Database: Supabase Postgres (cloud)
+
+Before running, copy env values and fill your Supabase connection:
+
+```bash
+cp .env.example .env
+```
+
+To stop and remove containers:
+
+```bash
+docker compose down
+```
+
 | id | name         |
 | -- | ------------ |
 | 1  | Rahul Sharma |
@@ -676,4 +702,5 @@ com.wealthsphere
 
 ---
 
-For the next step, I would suggest we build the **complete Spring Boot backend database model + entity classes + relationships first**, because everything depends on that.
+CHAT LINK:
+https://chatgpt.com/share/6a6c2f4f-9060-83ee-9d79-7440fe0feea8
