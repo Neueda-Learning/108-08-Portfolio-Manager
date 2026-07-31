@@ -81,6 +81,33 @@ const initialHoldingsByCustomer = {
   ],
 }
 
+const initialPerformanceByCustomer = {
+  1: [
+    { month: 'Jan', portfolio: 100, sensex: 100 },
+    { month: 'Feb', portfolio: 101.2, sensex: 100.6 },
+    { month: 'Mar', portfolio: 100.9, sensex: 99.8 },
+    { month: 'Apr', portfolio: 102.4, sensex: 101.1 },
+    { month: 'May', portfolio: 103.7, sensex: 102.5 },
+    { month: 'Jun', portfolio: 104.1, sensex: 103.2 },
+  ],
+  2: [
+    { month: 'Jan', portfolio: 100, sensex: 100 },
+    { month: 'Feb', portfolio: 101.8, sensex: 100.6 },
+    { month: 'Mar', portfolio: 102.9, sensex: 99.8 },
+    { month: 'Apr', portfolio: 104.6, sensex: 101.1 },
+    { month: 'May', portfolio: 106.2, sensex: 102.5 },
+    { month: 'Jun', portfolio: 107.1, sensex: 103.2 },
+  ],
+  3: [
+    { month: 'Jan', portfolio: 100, sensex: 100 },
+    { month: 'Feb', portfolio: 103.4, sensex: 100.6 },
+    { month: 'Mar', portfolio: 102.7, sensex: 99.8 },
+    { month: 'Apr', portfolio: 106.1, sensex: 101.1 },
+    { month: 'May', portfolio: 108.7, sensex: 102.5 },
+    { month: 'Jun', portfolio: 110.2, sensex: 103.2 },
+  ],
+}
+
 function App() {
   const [activeView, setActiveView] = useState('Dashboard')
   const [customers] = useState(initialCustomers)
@@ -156,6 +183,7 @@ function App() {
   const selectedCustomer =
     customers.find((customer) => customer.id === selectedCustomerId) || customers[0]
   const selectedCustomerHoldings = holdingsByCustomer[selectedCustomer.id] || []
+  const selectedPerformance = initialPerformanceByCustomer[selectedCustomer.id] || []
 
   const portfolioTotals = selectedCustomerHoldings.reduce(
     (totals, holding) => {
@@ -175,6 +203,37 @@ function App() {
       currency: 'INR',
       maximumFractionDigits: 0,
     }).format(value)
+
+  const formatPercent = (value) => `${value.toFixed(2)}%`
+
+  const getSeriesReturn = (series, key) => {
+    if (series.length < 2) {
+      return 0
+    }
+
+    const first = series[0][key]
+    const last = series[series.length - 1][key]
+    return ((last - first) / first) * 100
+  }
+
+  const getLinePoints = (series, key, minValue, maxValue) => {
+    if (series.length === 0) {
+      return ''
+    }
+
+    const width = 560
+    const height = 220
+    const stepX = series.length > 1 ? width / (series.length - 1) : width
+    const range = maxValue - minValue || 1
+
+    return series
+      .map((point, index) => {
+        const x = index * stepX
+        const y = height - ((point[key] - minValue) / range) * height
+        return `${x},${y}`
+      })
+      .join(' ')
+  }
 
   const handleAddAsset = (event) => {
     event.preventDefault()
@@ -433,6 +492,66 @@ function App() {
     </>
   )
 
+  const renderPerformance = () => {
+    const allValues = selectedPerformance.flatMap((point) => [point.portfolio, point.sensex])
+    const minValue = Math.min(...allValues)
+    const maxValue = Math.max(...allValues)
+    const portfolioReturn = getSeriesReturn(selectedPerformance, 'portfolio')
+    const sensexReturn = getSeriesReturn(selectedPerformance, 'sensex')
+    const alpha = portfolioReturn - sensexReturn
+
+    return (
+      <>
+        <section className="card">
+          <h2>Performance</h2>
+          <p>Portfolio trend comparison for {selectedCustomer.name} against Sensex benchmark.</p>
+        </section>
+
+        <section className="summary-grid">
+          <article className="summary-card">
+            <h3>Portfolio Return (6M)</h3>
+            <p>{formatPercent(portfolioReturn)}</p>
+          </article>
+          <article className="summary-card">
+            <h3>Sensex Return (6M)</h3>
+            <p>{formatPercent(sensexReturn)}</p>
+          </article>
+          <article className="summary-card">
+            <h3>Relative Alpha</h3>
+            <p>{formatPercent(alpha)}</p>
+          </article>
+        </section>
+
+        <section className="card">
+          <h2>Portfolio vs Sensex</h2>
+          <div className="chart-wrap" aria-label="Portfolio and Sensex trend chart">
+            <svg viewBox="0 0 560 220" className="line-chart" role="img">
+              <polyline
+                points={getLinePoints(selectedPerformance, 'sensex', minValue, maxValue)}
+                className="line sensex-line"
+              />
+              <polyline
+                points={getLinePoints(selectedPerformance, 'portfolio', minValue, maxValue)}
+                className="line portfolio-line"
+              />
+            </svg>
+          </div>
+
+          <div className="chart-legend">
+            <span><i className="legend-dot portfolio-dot" /> Portfolio</span>
+            <span><i className="legend-dot sensex-dot" /> Sensex</span>
+          </div>
+
+          <div className="month-row">
+            {selectedPerformance.map((point) => (
+              <span key={point.month}>{point.month}</span>
+            ))}
+          </div>
+        </section>
+      </>
+    )
+  }
+
   const renderPlaceholder = (title, description) => (
     <section className="card">
       <h2>{title}</h2>
@@ -453,10 +572,11 @@ function App() {
       return renderPortfolio()
     }
 
-    return renderPlaceholder(
-      'Performance',
-      'Portfolio vs Sensex performance view will be added once portfolio data is available.'
-    )
+    if (activeView === 'Performance') {
+      return renderPerformance()
+    }
+
+    return renderPlaceholder('Page', 'This page is not available.')
   }
 
   return (

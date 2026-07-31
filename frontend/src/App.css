@@ -158,6 +158,66 @@
   padding: 6px 10px;
 }
 
+.chart-wrap {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.line-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.portfolio-line {
+  stroke: #2a7fff;
+}
+
+.sensex-line {
+  stroke: #f97316;
+}
+
+.chart-legend {
+  margin-top: 10px;
+  display: flex;
+  gap: 16px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 999px;
+}
+
+.portfolio-dot {
+  background: #2a7fff;
+}
+
+.sensex-dot {
+  background: #f97316;
+}
+
+.month-row {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  font-size: 13px;
+  color: var(--text);
+}
+
 .form {
   display: grid;
   gap: 10px;
@@ -192,5 +252,9 @@
   .customer-actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .month-row {
+    font-size: 12px;
   }
 }
