@@ -143,6 +143,32 @@ created_at
 
 Example:
 
+## Docker Setup
+
+Run the full stack using Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+* Frontend: http://localhost:5173
+* Core API: http://localhost:8080
+* Database: Supabase Postgres (cloud)
+
+Before running, copy env values and fill your Supabase connection:
+
+```bash
+cp .env.example .env
+```
+
+To stop and remove containers:
+
+```bash
+docker compose down
+```
+
 | id | name         |
 | -- | ------------ |
 | 1  | Rahul Sharma |
