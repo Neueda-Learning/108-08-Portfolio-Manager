@@ -125,6 +125,39 @@
   color: var(--text-h);
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.portfolio-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.portfolio-table th,
+.portfolio-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.portfolio-table th {
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.remove-btn {
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  background: #fff;
+  color: #b91c1c;
+  cursor: pointer;
+  font: inherit;
+  padding: 6px 10px;
+}
+
 .form {
   display: grid;
   gap: 10px;
