@@ -530,6 +530,7 @@ function App() {
     return (
       <>
         <section className="card hero-card">
+          <p className="section-kicker">Overview</p>
           <h2>Welcome, {authUser.displayName}</h2>
           <p>
             This workspace is designed for beginner-friendly decision making with clear visuals and
@@ -543,6 +544,7 @@ function App() {
         </section>
 
         <section className="card quick-actions-card">
+          <p className="section-kicker">Action Center</p>
           <h2>Quick Actions</h2>
           <div className="quick-actions">
             {visibleViews.includes('Customers') && (
@@ -582,6 +584,7 @@ function App() {
 
         <section className="double-grid">
           <article className="card">
+            <p className="section-kicker">Risk Lens</p>
             <h2>Risk Profile Mix</h2>
             <ul className="risk-list">
               {Object.entries(riskDistribution).map(([risk, count]) => (
@@ -594,6 +597,7 @@ function App() {
           </article>
 
           <article className="card">
+            <p className="section-kicker">Allocation View</p>
             <h2>Allocation Snapshot</h2>
             {renderAllocationDonut(selectedCustomerHoldings)}
           </article>
@@ -601,6 +605,7 @@ function App() {
 
         {authUser.role === 'admin' && (
           <section className="card">
+            <p className="section-kicker">Connectivity</p>
             <h2>Live Account Endpoint Health</h2>
             <p>Backend status: {status}</p>
             <p>API base: {apiBaseUrl}</p>
@@ -637,6 +642,7 @@ function App() {
         )}
 
         <section className="card checklist-card">
+          <p className="section-kicker">Delivery Status</p>
           <h2>Business Requirement Coverage</h2>
           <ul className="checklist">
             {requirementChecklist.map((item) => (
@@ -661,6 +667,7 @@ function App() {
     return (
       <>
         <section className="card">
+          <p className="section-kicker">Client Directory</p>
           <h2>Customers</h2>
           <p>Select any customer to manage portfolio and performance.</p>
           <p className="muted-text">
@@ -712,6 +719,7 @@ function App() {
     return (
       <>
         <section className="card">
+          <p className="section-kicker">Holdings Workspace</p>
           <h2>Portfolio: {selectedCustomer.name}</h2>
           <p>
             Risk profile: {selectedCustomer.riskProfile} | Investment: {formatCurrency(portfolioTotals.investmentValue)} | Current:{' '}
@@ -740,11 +748,13 @@ function App() {
 
         <section className="double-grid">
           <article className="card">
+            <p className="section-kicker">Allocation</p>
             <h2>Asset Allocation Pie</h2>
             {renderAllocationDonut(selectedCustomerHoldings)}
           </article>
 
           <article className="card">
+            <p className="section-kicker">Detailed Positions</p>
             <h2>Holdings Table</h2>
             <div className="table-wrap">
               <table className="portfolio-table">
@@ -793,6 +803,7 @@ function App() {
         </section>
 
         <section className="card">
+          <p className="section-kicker">Portfolio Editor</p>
           <h2>Add Asset</h2>
           <p className="muted-text">Available for fund manager login. Customers can only view this section.</p>
           <form className="form" onSubmit={handleAddAsset}>
@@ -877,6 +888,7 @@ function App() {
     return (
       <>
         <section className="card">
+          <p className="section-kicker">Benchmark Lab</p>
           <h2>Performance Analytics: {selectedCustomer.name}</h2>
           <p>Compare portfolio growth against Sensex and Nifty 50 using beginner-friendly visuals.</p>
           <p className="muted-text">
@@ -907,6 +919,7 @@ function App() {
         </section>
 
         <section className="card">
+          <p className="section-kicker">Trend View</p>
           <h2>Comparison Line Chart</h2>
           <div className="chart-wrap" aria-label="Comparison chart for portfolio, Sensex and Nifty 50">
             <svg viewBox="0 0 680 250" className="line-chart" role="img">
@@ -945,6 +958,7 @@ function App() {
         </section>
 
         <section className="card">
+          <p className="section-kicker">Momentum Check</p>
           <h2>Monthly Alpha vs Nifty 50</h2>
           <div className="bar-grid">
             {monthlyAlphaVsNifty.map((entry) => {
@@ -1008,6 +1022,21 @@ function App() {
           <article>
             <strong>Beginner friendly flow</strong>
             <span>Simple language and guided sections across every page.</span>
+          </article>
+        </div>
+
+        <div className="login-metrics">
+          <article>
+            <span>Assets Under View</span>
+            <strong>₹4.8M</strong>
+          </article>
+          <article>
+            <span>Active Customers</span>
+            <strong>3</strong>
+          </article>
+          <article>
+            <span>Benchmarks</span>
+            <strong>Sensex + Nifty 50</strong>
           </article>
         </div>
       </section>

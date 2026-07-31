@@ -36,9 +36,10 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 10% -10%, rgba(15, 118, 110, 0.18) 0, rgba(15, 118, 110, 0) 45%),
-    radial-gradient(circle at 90% 0%, rgba(245, 158, 11, 0.16) 0, rgba(245, 158, 11, 0) 36%),
-    linear-gradient(180deg, #f8f6f1 0%, #f4efe5 100%);
+    radial-gradient(circle at 10% -10%, rgba(15, 118, 110, 0.2) 0, rgba(15, 118, 110, 0) 42%),
+    radial-gradient(circle at 90% 0%, rgba(245, 158, 11, 0.18) 0, rgba(245, 158, 11, 0) 34%),
+    radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.08) 0, rgba(37, 99, 235, 0) 34%),
+    linear-gradient(180deg, #faf7f1 0%, #f2ede2 100%);
 }
 
 #root {
@@ -62,8 +63,8 @@ h2 {
 }
 
 h1 {
-  font-size: 52px;
-  letter-spacing: -1.4px;
+  font-size: 54px;
+  letter-spacing: -1.6px;
   margin: 20px 0 12px;
   @media (max-width: 1024px) {
     font-size: 34px;
