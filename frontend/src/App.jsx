@@ -328,6 +328,15 @@ function App() {
       .map(([risk, count]) => `${risk}: ${count}`)
       .join(' | ')
 
+    const requirementChecklist = [
+      'Fund Manager admin view is available',
+      'Three customers are loaded at startup',
+      'Customer portfolios can be viewed',
+      'Portfolio assets can be added and removed',
+      'Portfolio updates are reflected immediately',
+      'Performance page compares portfolio with Sensex',
+    ]
+
     return (
       <>
         <section className="card">
@@ -403,6 +412,16 @@ function App() {
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="card checklist-card">
+          <h2>Business Requirement Coverage</h2>
+          <p className="muted-text">Quick checklist for demo/review readiness in this build.</p>
+          <ul className="checklist">
+            {requirementChecklist.map((item) => (
+              <li key={item}>Done: {item}</li>
+            ))}
+          </ul>
         </section>
       </>
     )

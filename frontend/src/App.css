@@ -185,6 +185,20 @@
   margin-top: 8px;
 }
 
+.checklist-card {
+  background: #fff;
+}
+
+.checklist {
+  margin: 12px 0 0;
+  padding-left: 18px;
+}
+
+.checklist li {
+  margin-bottom: 8px;
+  color: var(--text-h);
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
