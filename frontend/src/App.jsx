@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { apiFetch, getApiBaseUrl } from './api'
 
+const views = ['Dashboard', 'Customers', 'Portfolio', 'Performance']
+
 function App() {
+  const [activeView, setActiveView] = useState('Dashboard')
   const [status, setStatus] = useState('Checking connection...')
   const [accounts, setAccounts] = useState([])
   const [name, setName] = useState('')
@@ -64,11 +67,24 @@ function App() {
     }
   }
 
-  return (
-    <main className="app">
-      <h1>Portfolio Manager Connectivity Demo</h1>
-      <p className="status">Backend status: {status}</p>
-      <p className="status">API base: {apiBaseUrl}</p>
+  const renderDashboard = () => (
+    <>
+      <section className="card">
+        <h2>Fund Manager Overview</h2>
+        <p>Backend status: {status}</p>
+        <p>API base: {apiBaseUrl}</p>
+      </section>
+
+      <section className="summary-grid">
+        <article className="summary-card">
+          <h3>Total Customers</h3>
+          <p>{accounts.length}</p>
+        </article>
+        <article className="summary-card">
+          <h3>Total Portfolio Value</h3>
+          <p>Pending portfolio endpoint</p>
+        </article>
+      </section>
 
       <section className="card">
         <h2>Create account (sample POST)</h2>
@@ -106,6 +122,62 @@ function App() {
           </ul>
         )}
       </section>
+    </>
+  )
+
+  const renderPlaceholder = (title, description) => (
+    <section className="card">
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </section>
+  )
+
+  const renderContent = () => {
+    if (activeView === 'Dashboard') {
+      return renderDashboard()
+    }
+
+    if (activeView === 'Customers') {
+      return renderPlaceholder(
+        'Customers',
+        'Customer list and risk profiles will be added in the next small commit.'
+      )
+    }
+
+    if (activeView === 'Portfolio') {
+      return renderPlaceholder(
+        'Portfolio',
+        'Customer holdings and add/remove asset flows will be added after customers page.'
+      )
+    }
+
+    return renderPlaceholder(
+      'Performance',
+      'Portfolio vs Sensex performance view will be added once portfolio data is available.'
+    )
+  }
+
+  return (
+    <main className="app">
+      <header className="page-header">
+        <h1>Financial Portfolio Manager</h1>
+        <p className="status">Fund Manager Workspace</p>
+      </header>
+
+      <nav className="nav" aria-label="Primary">
+        {views.map((view) => (
+          <button
+            key={view}
+            type="button"
+            className={`nav-link ${activeView === view ? 'active' : ''}`}
+            onClick={() => setActiveView(view)}
+          >
+            {view}
+          </button>
+        ))}
+      </nav>
+
+      {renderContent()}
     </main>
   )
 }
