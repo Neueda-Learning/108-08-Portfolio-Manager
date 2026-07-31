@@ -348,6 +348,22 @@ function App() {
           </p>
         </section>
 
+        <section className="card quick-actions-card">
+          <h2>Manager Quick Actions</h2>
+          <p className="muted-text">Jump directly to your next task in one click.</p>
+          <div className="quick-actions">
+            <button type="button" className="quick-btn" onClick={() => setActiveView('Customers')}>
+              Review Customers
+            </button>
+            <button type="button" className="quick-btn" onClick={() => setActiveView('Portfolio')}>
+              Manage Portfolio
+            </button>
+            <button type="button" className="quick-btn" onClick={() => setActiveView('Performance')}>
+              Track Performance
+            </button>
+          </div>
+        </section>
+
         <section className="summary-grid">
           <article className="summary-card">
             <h3>Total Customers</h3>

@@ -219,6 +219,35 @@
   color: var(--text-h);
 }
 
+.quick-actions-card {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.quick-actions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.quick-btn {
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.quick-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  background: rgba(15, 118, 110, 0.18);
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
