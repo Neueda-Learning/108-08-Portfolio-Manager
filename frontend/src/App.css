@@ -1,13 +1,22 @@
 .app {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
   text-align: left;
 }
 
-.status {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 20px;
-  font-weight: 600;
+}
+
+.meta {
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 0.95rem;
 }
 
 .card {
@@ -24,6 +33,7 @@
 }
 
 .form input,
+.form select,
 .form button {
   padding: 10px;
   font: inherit;
@@ -38,7 +48,47 @@
   cursor: pointer;
 }
 
+.auth-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.auth-switch button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.auth-switch button.active {
+  background: #2a7fff;
+  color: #fff;
+  border-color: #2a7fff;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  background: transparent;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
 .error {
   color: #b91c1c;
   margin-top: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+ul {
+  padding-left: 18px;
 }

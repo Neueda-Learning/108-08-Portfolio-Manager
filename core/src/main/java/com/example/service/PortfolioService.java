@@ -34,6 +34,10 @@ public class PortfolioService {
         return portfolioRepository.findAll();
     }
 
+    public List<Portfolio> findByCustomerId(Long customerId) {
+        return portfolioRepository.findByCustomerId(customerId);
+    }
+
     public int update(Portfolio portfolio) {
         return portfolioRepository.update(portfolio);
     }
@@ -71,6 +75,12 @@ public class PortfolioService {
                 portfolioPerformance.subtract(benchmarkPerformance)
         );
         return Optional.of(analytics);
+    }
+
+    public boolean isPortfolioOwnedByCustomer(Long portfolioId, Long customerId) {
+        return portfolioRepository.findById(portfolioId)
+                .map(portfolio -> portfolio.getCustomerId().equals(customerId))
+                .orElse(false);
     }
 
     private BigDecimal safeAmount(BigDecimal amount) {

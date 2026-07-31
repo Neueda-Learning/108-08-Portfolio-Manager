@@ -66,6 +66,14 @@ public class PortfolioRepository {
         );
     }
 
+    public List<Portfolio> findByCustomerId(Long customerId) {
+        return jdbcTemplate.query(
+                "SELECT id, customer_id, portfolio_name, total_investment, current_value, created_at FROM portfolio WHERE customer_id = ? ORDER BY id",
+                rowMapper,
+                customerId
+        );
+    }
+
     public int update(Portfolio portfolio) {
         return jdbcTemplate.update(
                 "UPDATE portfolio SET customer_id = ?, portfolio_name = ?, total_investment = ?, current_value = ?, created_at = ? WHERE id = ?",

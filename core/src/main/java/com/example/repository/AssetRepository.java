@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -41,7 +42,18 @@ public class AssetRepository {
             ps.setBigDecimal(4, asset.getCurrentPrice());
             return ps;
         }, keyHolder);
-        Number key = keyHolder.getKey();
+        Number key = null;
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.get("id") instanceof Number idValue) {
+            key = idValue;
+        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().getFirst().get("id") instanceof Number idValue) {
+            key = idValue;
+        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().getFirst().size() == 1) {
+            Object firstValue = keyHolder.getKeyList().getFirst().values().iterator().next();
+            if (firstValue instanceof Number numberValue) {
+                key = numberValue;
+            }
+        }
         return new Asset(key != null ? key.longValue() : null, asset.getSymbol(), asset.getName(), asset.getAssetType(),
                 asset.getCurrentPrice());
     }
@@ -60,6 +72,15 @@ public class AssetRepository {
                 "SELECT id, symbol, name, asset_type, current_price FROM asset ORDER BY id",
                 rowMapper
         );
+    }
+
+    public Optional<Asset> findBySymbol(String symbol) {
+        List<Asset> rows = jdbcTemplate.query(
+                "SELECT id, symbol, name, asset_type, current_price FROM asset WHERE symbol = ?",
+                rowMapper,
+                symbol
+        );
+        return rows.stream().findFirst();
     }
 
     public int update(Asset asset) {

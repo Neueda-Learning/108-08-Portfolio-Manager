@@ -27,6 +27,10 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
+    public List<Customer> findByFundManagerId(Long fundManagerId) {
+        return customerRepository.findByFundManagerId(fundManagerId);
+    }
+
     public int update(Customer customer) {
         return customerRepository.update(customer);
     }

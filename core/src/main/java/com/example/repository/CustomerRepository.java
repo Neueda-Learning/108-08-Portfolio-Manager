@@ -66,6 +66,14 @@ public class CustomerRepository {
         );
     }
 
+    public List<Customer> findByFundManagerId(Long fundManagerId) {
+        return jdbcTemplate.query(
+                "SELECT id, fund_manager_id, name, email, phone, created_at FROM customer WHERE fund_manager_id = ? ORDER BY id",
+                rowMapper,
+                fundManagerId
+        );
+    }
+
     public int update(Customer customer) {
         return jdbcTemplate.update(
                 "UPDATE customer SET fund_manager_id = ?, name = ?, email = ?, phone = ?, created_at = ? WHERE id = ?",
