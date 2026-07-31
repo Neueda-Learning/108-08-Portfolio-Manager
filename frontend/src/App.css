@@ -45,6 +45,60 @@
   background: var(--social-bg);
 }
 
+.customers-list {
+  display: grid;
+  gap: 10px;
+}
+
+.customer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+}
+
+.customer-name {
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 2px;
+}
+
+.customer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.risk-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  background: #f4f3ec;
+}
+
+.select-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-h);
+  cursor: pointer;
+  font: inherit;
+  padding: 8px 10px;
+}
+
+.select-btn.selected {
+  border-color: #2a7fff;
+  background: #2a7fff;
+  color: #fff;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -94,4 +148,16 @@
 .error {
   color: #b91c1c;
   margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .customer-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .customer-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

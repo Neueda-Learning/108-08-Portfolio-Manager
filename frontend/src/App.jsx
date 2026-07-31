@@ -3,9 +3,31 @@ import './App.css'
 import { apiFetch, getApiBaseUrl } from './api'
 
 const views = ['Dashboard', 'Customers', 'Portfolio', 'Performance']
+const initialCustomers = [
+  {
+    id: 1,
+    name: 'John Mehra',
+    email: 'john.mehra@example.com',
+    riskProfile: 'Conservative',
+  },
+  {
+    id: 2,
+    name: 'Mira Iyer',
+    email: 'mira.iyer@example.com',
+    riskProfile: 'Moderate',
+  },
+  {
+    id: 3,
+    name: 'Sarthak Nanda',
+    email: 'sarthak.nanda@example.com',
+    riskProfile: 'Aggressive',
+  },
+]
 
 function App() {
   const [activeView, setActiveView] = useState('Dashboard')
+  const [customers] = useState(initialCustomers)
+  const [selectedCustomerId, setSelectedCustomerId] = useState(initialCustomers[0].id)
   const [status, setStatus] = useState('Checking connection...')
   const [accounts, setAccounts] = useState([])
   const [name, setName] = useState('')
@@ -67,6 +89,9 @@ function App() {
     }
   }
 
+  const selectedCustomer =
+    customers.find((customer) => customer.id === selectedCustomerId) || customers[0]
+
   const renderDashboard = () => (
     <>
       <section className="card">
@@ -78,7 +103,7 @@ function App() {
       <section className="summary-grid">
         <article className="summary-card">
           <h3>Total Customers</h3>
-          <p>{accounts.length}</p>
+          <p>{customers.length}</p>
         </article>
         <article className="summary-card">
           <h3>Total Portfolio Value</h3>
@@ -125,6 +150,43 @@ function App() {
     </>
   )
 
+  const renderCustomers = () => (
+    <>
+      <section className="card">
+        <h2>Customers</h2>
+        <p>Manage customer profiles and choose a customer for portfolio actions.</p>
+      </section>
+
+      <section className="card customers-list">
+        {customers.map((customer) => (
+          <article key={customer.id} className="customer-item">
+            <div>
+              <p className="customer-name">{customer.name}</p>
+              <p>{customer.email}</p>
+            </div>
+            <div className="customer-actions">
+              <span className="risk-chip">{customer.riskProfile}</span>
+              <button
+                type="button"
+                className={`select-btn ${selectedCustomerId === customer.id ? 'selected' : ''}`}
+                onClick={() => setSelectedCustomerId(customer.id)}
+              >
+                {selectedCustomerId === customer.id ? 'Selected' : 'Select'}
+              </button>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="card">
+        <h2>Selected Customer</h2>
+        <p>Name: {selectedCustomer.name}</p>
+        <p>Email: {selectedCustomer.email}</p>
+        <p>Risk Profile: {selectedCustomer.riskProfile}</p>
+      </section>
+    </>
+  )
+
   const renderPlaceholder = (title, description) => (
     <section className="card">
       <h2>{title}</h2>
@@ -138,10 +200,7 @@ function App() {
     }
 
     if (activeView === 'Customers') {
-      return renderPlaceholder(
-        'Customers',
-        'Customer list and risk profiles will be added in the next small commit.'
-      )
+      return renderCustomers()
     }
 
     if (activeView === 'Portfolio') {
