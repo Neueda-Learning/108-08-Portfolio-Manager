@@ -45,6 +45,19 @@
   background: var(--social-bg);
 }
 
+.context-bar {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  background: #fff;
+}
+
+.context-bar p {
+  color: var(--text-h);
+  font-size: 15px;
+}
+
 .customers-list {
   display: grid;
   gap: 10px;
@@ -131,6 +144,16 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
+}
+
+.muted-text {
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.tip-card p + p {
+  margin-top: 8px;
 }
 
 .table-wrap {

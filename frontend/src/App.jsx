@@ -334,6 +334,7 @@ function App() {
           <h2>Fund Manager Overview</h2>
           <p>Backend status: {status}</p>
           <p>API base: {apiBaseUrl}</p>
+          <p className="muted-text">This dashboard is ready for demo and will use live backend data as endpoints expand.</p>
         </section>
 
         <section className="summary-grid">
@@ -360,10 +361,11 @@ function App() {
         <section className="card">
           <h2>Risk Profile Mix</h2>
           <p>{riskSummary}</p>
+          <p className="muted-text">This gives a quick view of how balanced your customer base is by risk appetite.</p>
         </section>
 
         <section className="card">
-          <h2>Create account (sample POST)</h2>
+          <h2>Create Account (Live API Check)</h2>
           <form onSubmit={handleCreate} className="form">
             <input
               type="text"
@@ -385,9 +387,9 @@ function App() {
         </section>
 
         <section className="card">
-          <h2>Accounts (sample GET)</h2>
+          <h2>Accounts (Live API List)</h2>
           {accounts.length === 0 ? (
-            <p>No accounts yet.</p>
+            <p>No accounts yet. Add one above to confirm backend write flow.</p>
           ) : (
             <ul>
               {accounts.map((account) => (
@@ -407,6 +409,7 @@ function App() {
       <section className="card">
         <h2>Customers</h2>
         <p>Manage customer profiles and choose a customer for portfolio actions.</p>
+        <p className="muted-text">Tip: select a customer here, then open Portfolio or Performance to continue.</p>
       </section>
 
       <section className="card customers-list">
@@ -423,7 +426,7 @@ function App() {
                 className={`select-btn ${selectedCustomerId === customer.id ? 'selected' : ''}`}
                 onClick={() => setSelectedCustomerId(customer.id)}
               >
-                {selectedCustomerId === customer.id ? 'Selected' : 'Select'}
+                {selectedCustomerId === customer.id ? 'Current' : 'Select'}
               </button>
             </div>
           </article>
@@ -446,6 +449,7 @@ function App() {
         <p>
           Viewing portfolio for {selectedCustomer.name} ({selectedCustomer.riskProfile})
         </p>
+        <p className="muted-text">Any add or remove action here updates this customer's portfolio instantly in the app.</p>
       </section>
 
       <section className="summary-grid">
@@ -462,7 +466,7 @@ function App() {
       <section className="card">
         <h2>Customer Holdings</h2>
         {selectedCustomerHoldings.length === 0 ? (
-          <p>No holdings yet for this customer.</p>
+          <p>No holdings yet for this customer. Use Add Asset below to start the portfolio.</p>
         ) : (
           <div className="table-wrap">
             <table className="portfolio-table">
@@ -471,8 +475,8 @@ function App() {
                   <th>Asset</th>
                   <th>Type</th>
                   <th>Qty</th>
-                  <th>Investment</th>
-                  <th>Current</th>
+                  <th>Investment Value</th>
+                  <th>Current Value</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -503,6 +507,7 @@ function App() {
 
       <section className="card">
         <h2>Add Asset</h2>
+        <p className="muted-text">Use realistic values so performance comparisons remain meaningful.</p>
         <form className="form" onSubmit={handleAddAsset}>
           <input
             type="text"
@@ -562,6 +567,7 @@ function App() {
         <section className="card">
           <h2>Performance</h2>
           <p>Portfolio trend comparison for {selectedCustomer.name} against Sensex benchmark.</p>
+          <p className="muted-text">Higher blue line means portfolio is outperforming benchmark over that period.</p>
         </section>
 
         <section className="summary-grid">
@@ -604,6 +610,13 @@ function App() {
               <span key={point.month}>{point.month}</span>
             ))}
           </div>
+        </section>
+
+        <section className="card tip-card">
+          <h2>How To Read This</h2>
+          <p>Portfolio Return: overall growth of selected customer portfolio in this 6-month window.</p>
+          <p>Sensex Return: benchmark movement in the same period.</p>
+          <p>Relative Alpha: positive means portfolio beat Sensex, negative means it lagged.</p>
         </section>
       </>
     )
@@ -655,6 +668,12 @@ function App() {
           </button>
         ))}
       </nav>
+
+      <section className="context-bar" aria-live="polite">
+        <p>
+          Current customer: <strong>{selectedCustomer.name}</strong> | Risk: <strong>{selectedCustomer.riskProfile}</strong>
+        </p>
+      </section>
 
       {renderContent()}
     </main>
