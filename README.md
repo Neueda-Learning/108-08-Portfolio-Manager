@@ -155,18 +155,18 @@ Services:
 
 * Frontend: http://localhost:5173
 * Core API: http://localhost:8080
-* MySQL: localhost:3306
+* Database: Supabase Postgres (cloud)
+
+Before running, copy env values and fill your Supabase connection:
+
+```bash
+cp .env.example .env
+```
 
 To stop and remove containers:
 
 ```bash
 docker compose down
-```
-
-To stop and also remove database data volume:
-
-```bash
-docker compose down -v
 ```
 
 | id | name         |
