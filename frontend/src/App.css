@@ -1,56 +1,70 @@
 .app {
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 40px 20px;
   text-align: left;
 }
 
 .page-header {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  animation: rise-in 420ms ease-out;
 }
 
 .status {
-  margin-bottom: 20px;
+  margin-bottom: 0;
   font-weight: 600;
+  color: #0f766e;
 }
 
 .nav {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  animation: rise-in 520ms ease-out;
 }
 
 .nav-link {
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.72);
   color: var(--text-h);
   cursor: pointer;
   font: inherit;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: var(--shadow);
 }
 
 .nav-link.active {
-  background: #2a7fff;
-  border-color: #2a7fff;
+  background: #0f766e;
+  border-color: #0f766e;
   color: #fff;
 }
 
 .card {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 20px;
   margin-bottom: 20px;
   background: var(--social-bg);
+  box-shadow: var(--shadow);
+  animation: rise-in 360ms ease-out;
 }
 
 .context-bar {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 14px;
   margin-bottom: 20px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow);
+  animation: rise-in 600ms ease-out;
 }
 
 .context-bar p {
@@ -69,9 +83,15 @@
   justify-content: space-between;
   gap: 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px;
-  background: #fff;
+  background: var(--panel);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.customer-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
 .customer-name {
@@ -107,8 +127,8 @@
 }
 
 .select-btn.selected {
-  border-color: #2a7fff;
-  background: #2a7fff;
+  border-color: #0f766e;
+  background: #0f766e;
   color: #fff;
 }
 
@@ -121,9 +141,9 @@
 
 .summary-card {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
-  background: var(--social-bg);
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .summary-card h3 {
@@ -176,9 +196,9 @@
 }
 
 .data-badge.mixed {
-  color: #1d4ed8;
-  background: #dbeafe;
-  border-color: #93c5fd;
+  color: #115e59;
+  background: #ccfbf1;
+  border-color: #5eead4;
 }
 
 .tip-card p + p {
@@ -234,9 +254,9 @@
 
 .chart-wrap {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .line-chart {
@@ -253,11 +273,11 @@
 }
 
 .portfolio-line {
-  stroke: #2a7fff;
+  stroke: #0f766e;
 }
 
 .sensex-line {
-  stroke: #f97316;
+  stroke: #d97706;
 }
 
 .chart-legend {
@@ -277,11 +297,11 @@
 }
 
 .portfolio-dot {
-  background: #2a7fff;
+  background: #0f766e;
 }
 
 .sensex-dot {
-  background: #f97316;
+  background: #d97706;
 }
 
 .month-row {
@@ -308,8 +328,19 @@
 .form button {
   border: none;
   color: #fff;
-  background: #2a7fff;
+  background: #0f766e;
   cursor: pointer;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .error {
