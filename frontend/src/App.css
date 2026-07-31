@@ -125,6 +125,14 @@
   color: var(--text-h);
 }
 
+.summary-note {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;

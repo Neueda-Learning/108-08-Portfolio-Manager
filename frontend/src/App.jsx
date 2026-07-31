@@ -287,63 +287,120 @@ function App() {
     })
   }
 
-  const renderDashboard = () => (
-    <>
-      <section className="card">
-        <h2>Fund Manager Overview</h2>
-        <p>Backend status: {status}</p>
-        <p>API base: {apiBaseUrl}</p>
-      </section>
+  const renderDashboard = () => {
+    const totalPortfolioValue = customers.reduce((total, customer) => {
+      const holdings = holdingsByCustomer[customer.id] || []
+      const customerValue = holdings.reduce(
+        (sum, holding) => sum + holding.quantity * holding.currentPrice,
+        0
+      )
+      return total + customerValue
+    }, 0)
 
-      <section className="summary-grid">
-        <article className="summary-card">
-          <h3>Total Customers</h3>
-          <p>{customers.length}</p>
-        </article>
-        <article className="summary-card">
-          <h3>Total Portfolio Value</h3>
-          <p>Pending portfolio endpoint</p>
-        </article>
-      </section>
+    const riskDistribution = customers.reduce(
+      (distribution, customer) => {
+        const risk = customer.riskProfile
+        return {
+          ...distribution,
+          [risk]: (distribution[risk] || 0) + 1,
+        }
+      },
+      {}
+    )
 
-      <section className="card">
-        <h2>Create account (sample POST)</h2>
-        <form onSubmit={handleCreate} className="form">
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-          <button type="submit">Save</button>
-        </form>
-        {error && <p className="error">{error}</p>}
-      </section>
+    const customerReturns = customers.map((customer) => {
+      const series = initialPerformanceByCustomer[customer.id] || []
+      return {
+        name: customer.name,
+        portfolioReturn: getSeriesReturn(series, 'portfolio'),
+      }
+    })
 
-      <section className="card">
-        <h2>Accounts (sample GET)</h2>
-        {accounts.length === 0 ? (
-          <p>No accounts yet.</p>
-        ) : (
-          <ul>
-            {accounts.map((account) => (
-              <li key={account.id}>
-                #{account.id} - {account.name} ({account.email})
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </>
-  )
+    const bestPerformer = customerReturns.reduce((best, current) =>
+      current.portfolioReturn > best.portfolioReturn ? current : best
+    )
+
+    const worstPerformer = customerReturns.reduce((worst, current) =>
+      current.portfolioReturn < worst.portfolioReturn ? current : worst
+    )
+
+    const riskSummary = Object.entries(riskDistribution)
+      .map(([risk, count]) => `${risk}: ${count}`)
+      .join(' | ')
+
+    return (
+      <>
+        <section className="card">
+          <h2>Fund Manager Overview</h2>
+          <p>Backend status: {status}</p>
+          <p>API base: {apiBaseUrl}</p>
+        </section>
+
+        <section className="summary-grid">
+          <article className="summary-card">
+            <h3>Total Customers</h3>
+            <p>{customers.length}</p>
+          </article>
+          <article className="summary-card">
+            <h3>Total Portfolio Value</h3>
+            <p>{formatCurrency(totalPortfolioValue)}</p>
+          </article>
+          <article className="summary-card">
+            <h3>Top Performer (6M)</h3>
+            <p>{bestPerformer.name}</p>
+            <span className="summary-note">{formatPercent(bestPerformer.portfolioReturn)}</span>
+          </article>
+          <article className="summary-card">
+            <h3>Needs Attention (6M)</h3>
+            <p>{worstPerformer.name}</p>
+            <span className="summary-note">{formatPercent(worstPerformer.portfolioReturn)}</span>
+          </article>
+        </section>
+
+        <section className="card">
+          <h2>Risk Profile Mix</h2>
+          <p>{riskSummary}</p>
+        </section>
+
+        <section className="card">
+          <h2>Create account (sample POST)</h2>
+          <form onSubmit={handleCreate} className="form">
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+            <button type="submit">Save</button>
+          </form>
+          {error && <p className="error">{error}</p>}
+        </section>
+
+        <section className="card">
+          <h2>Accounts (sample GET)</h2>
+          {accounts.length === 0 ? (
+            <p>No accounts yet.</p>
+          ) : (
+            <ul>
+              {accounts.map((account) => (
+                <li key={account.id}>
+                  #{account.id} - {account.name} ({account.email})
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </>
+    )
+  }
 
   const renderCustomers = () => (
     <>
