@@ -334,7 +334,9 @@ function App() {
           <h2>Fund Manager Overview</h2>
           <p>Backend status: {status}</p>
           <p>API base: {apiBaseUrl}</p>
-          <p className="muted-text">This dashboard is ready for demo and will use live backend data as endpoints expand.</p>
+          <p className="muted-text">
+            <span className="data-badge mixed">Data: Mixed</span> Live for API connectivity/accounts, mock for portfolio analytics.
+          </p>
         </section>
 
         <section className="summary-grid">
@@ -366,6 +368,7 @@ function App() {
 
         <section className="card">
           <h2>Create Account (Live API Check)</h2>
+          <p className="muted-text"><span className="data-badge live">Data: Live API</span> Saves directly to backend account endpoint.</p>
           <form onSubmit={handleCreate} className="form">
             <input
               type="text"
@@ -388,6 +391,7 @@ function App() {
 
         <section className="card">
           <h2>Accounts (Live API List)</h2>
+          <p className="muted-text"><span className="data-badge live">Data: Live API</span> List fetched from backend account endpoint.</p>
           {accounts.length === 0 ? (
             <p>No accounts yet. Add one above to confirm backend write flow.</p>
           ) : (
@@ -409,7 +413,9 @@ function App() {
       <section className="card">
         <h2>Customers</h2>
         <p>Manage customer profiles and choose a customer for portfolio actions.</p>
-        <p className="muted-text">Tip: select a customer here, then open Portfolio or Performance to continue.</p>
+        <p className="muted-text">
+          <span className="data-badge mock">Data: Mock</span> Tip: select a customer here, then open Portfolio or Performance to continue.
+        </p>
       </section>
 
       <section className="card customers-list">
@@ -449,7 +455,9 @@ function App() {
         <p>
           Viewing portfolio for {selectedCustomer.name} ({selectedCustomer.riskProfile})
         </p>
-        <p className="muted-text">Any add or remove action here updates this customer's portfolio instantly in the app.</p>
+        <p className="muted-text">
+          <span className="data-badge mock">Data: Mock</span> Any add or remove action here updates this customer's portfolio instantly in the app.
+        </p>
       </section>
 
       <section className="summary-grid">
@@ -567,7 +575,9 @@ function App() {
         <section className="card">
           <h2>Performance</h2>
           <p>Portfolio trend comparison for {selectedCustomer.name} against Sensex benchmark.</p>
-          <p className="muted-text">Higher blue line means portfolio is outperforming benchmark over that period.</p>
+          <p className="muted-text">
+            <span className="data-badge mock">Data: Mock</span> Higher blue line means portfolio is outperforming benchmark over that period.
+          </p>
         </section>
 
         <section className="summary-grid">
