@@ -1,0 +1,49 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: portfolio-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: demo1
+      MYSQL_USER: demo1user
+      MYSQL_PASSWORD: demopass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  core:
+    build:
+      context: ./core
+      dockerfile: Dockerfile
+    container_name: portfolio-core
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demo1?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: demo1user
+      SPRING_DATASOURCE_PASSWORD: demopass
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portfolio-frontend
+    restart: unless-stopped
+    depends_on:
+      - core
+    ports:
+      - "5173:80"
+
+volumes:
+  mysql_data:

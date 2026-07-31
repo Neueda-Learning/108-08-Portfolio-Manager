@@ -143,6 +143,32 @@ created_at
 
 Example:
 
+## Docker Setup
+
+Run the full stack using Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+* Frontend: http://localhost:5173
+* Core API: http://localhost:8080
+* MySQL: localhost:3306
+
+To stop and remove containers:
+
+```bash
+docker compose down
+```
+
+To stop and also remove database data volume:
+
+```bash
+docker compose down -v
+```
+
 | id | name         |
 | -- | ------------ |
 | 1  | Rahul Sharma |
