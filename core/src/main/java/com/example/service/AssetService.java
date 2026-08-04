@@ -1,9 +1,13 @@
 package com.example.service;
 
 import com.example.model.Asset;
+import com.example.model.PortfolioHolding;
 import com.example.repository.AssetRepository;
+import com.example.repository.PortfolioHoldingRepository;
+import com.example.repository.PortfolioRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -14,9 +18,15 @@ import java.util.Optional;
 @Service
 public class AssetService {
     private final AssetRepository assetRepository;
+    private final PortfolioHoldingRepository portfolioHoldingRepository;
+    private final PortfolioRepository portfolioRepository;
 
-    public AssetService(AssetRepository assetRepository) {
+    public AssetService(AssetRepository assetRepository,
+                        PortfolioHoldingRepository portfolioHoldingRepository,
+                        PortfolioRepository portfolioRepository) {
         this.assetRepository = assetRepository;
+        this.portfolioHoldingRepository = portfolioHoldingRepository;
+        this.portfolioRepository = portfolioRepository;
     }
 
     public Asset create(Asset asset) {
@@ -32,10 +42,15 @@ public class AssetService {
         return assetRepository.findAll();
     }
 
+    @Transactional
     public int update(Asset asset) {
         Asset normalized = normalizeAssetForMvp(asset);
         normalized.setId(asset.getId());
-        return assetRepository.update(normalized);
+        int updated = assetRepository.update(normalized);
+        if (updated > 0) {
+            refreshHoldingsAndPortfoliosForAsset(normalized.getId(), normalized.getCurrentPrice());
+        }
+        return updated;
     }
 
     public int delete(Long id) {
@@ -63,5 +78,16 @@ public class AssetService {
                 "STOCK",
                 currentPrice
         );
+    }
+
+    private void refreshHoldingsAndPortfoliosForAsset(Long assetId, BigDecimal currentPrice) {
+        if (assetId == null) {
+            return;
+        }
+
+        portfolioHoldingRepository.refreshCurrentValueForAsset(assetId, currentPrice);
+        for (PortfolioHolding holding : portfolioHoldingRepository.findByAssetId(assetId)) {
+            portfolioRepository.refreshTotalsFromHoldings(holding.getPortfolioId());
+        }
     }
 }

@@ -70,6 +70,14 @@ public class TransactionRepository {
         );
     }
 
+    public List<TransactionHistory> findByPortfolioId(Long portfolioId) {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, transaction_type, quantity, price, transaction_date FROM transaction_history WHERE portfolio_id = ? ORDER BY transaction_date DESC, id DESC",
+                rowMapper,
+                portfolioId
+        );
+    }
+
     public int update(TransactionHistory transaction) {
         return jdbcTemplate.update(
                 "UPDATE transaction_history SET portfolio_id = ?, asset_id = ?, transaction_type = ?, quantity = ?, price = ?, transaction_date = ? WHERE id = ?",

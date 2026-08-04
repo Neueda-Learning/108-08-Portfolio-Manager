@@ -3,11 +3,15 @@ package com.example.controller;
 import com.example.model.PortfolioAnalytics;
 import com.example.model.Portfolio;
 import com.example.model.Customer;
+import com.example.model.PortfolioHolding;
+import com.example.model.TransactionHistory;
 import com.example.security.RoleAccess;
 import com.example.security.RoleAccess.Role;
 import com.example.service.CustomerService;
 import com.example.service.PortfolioService;
 import com.example.service.PortfolioService.PurchaseResult;
+import com.example.repository.PortfolioHoldingRepository;
+import com.example.repository.TransactionRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,10 +35,17 @@ import java.util.List;
 public class PortfolioController {
     private final PortfolioService portfolioService;
     private final CustomerService customerService;
+    private final PortfolioHoldingRepository portfolioHoldingRepository;
+    private final TransactionRepository transactionRepository;
 
-    public PortfolioController(PortfolioService portfolioService, CustomerService customerService) {
+    public PortfolioController(PortfolioService portfolioService,
+                               CustomerService customerService,
+                               PortfolioHoldingRepository portfolioHoldingRepository,
+                               TransactionRepository transactionRepository) {
         this.portfolioService = portfolioService;
         this.customerService = customerService;
+        this.portfolioHoldingRepository = portfolioHoldingRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @GetMapping
@@ -110,6 +121,30 @@ public class PortfolioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found");
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/holdings")
+    public List<PortfolioHolding> holdings(@PathVariable Long id,
+                                           @RequestHeader("X-User-Role") String roleHeader,
+                                           @RequestHeader(value = "X-Customer-Id", required = false) Long customerIdHeader) {
+        Role role = RoleAccess.parseRole(roleHeader);
+        if (role == Role.CUSTOMER && (customerIdHeader == null
+                || !portfolioService.isPortfolioOwnedByCustomer(id, customerIdHeader))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer can only view own holdings");
+        }
+        return portfolioHoldingRepository.findByPortfolioId(id);
+    }
+
+    @GetMapping("/{id}/transactions")
+    public List<TransactionHistory> transactions(@PathVariable Long id,
+                                                 @RequestHeader("X-User-Role") String roleHeader,
+                                                 @RequestHeader(value = "X-Customer-Id", required = false) Long customerIdHeader) {
+        Role role = RoleAccess.parseRole(roleHeader);
+        if (role == Role.CUSTOMER && (customerIdHeader == null
+                || !portfolioService.isPortfolioOwnedByCustomer(id, customerIdHeader))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer can only view own transactions");
+        }
+        return transactionRepository.findByPortfolioId(id);
     }
 
     @PostMapping("/{id}/transactions/purchase")

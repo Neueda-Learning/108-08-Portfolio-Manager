@@ -75,6 +75,14 @@ public class PortfolioHoldingRepository {
         );
     }
 
+    public List<PortfolioHolding> findByAssetId(Long assetId) {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE asset_id = ? ORDER BY id",
+                rowMapper,
+                assetId
+        );
+    }
+
     public int update(PortfolioHolding holding) {
         return jdbcTemplate.update(
                 "UPDATE portfolio_holding SET portfolio_id = ?, asset_id = ?, quantity = ?, average_buy_price = ?, invested_amount = ?, current_value = ? WHERE id = ?",
@@ -90,6 +98,14 @@ public class PortfolioHoldingRepository {
 
     public int delete(Long id) {
         return jdbcTemplate.update("DELETE FROM portfolio_holding WHERE id = ?", id);
+    }
+
+    public int refreshCurrentValueForAsset(Long assetId, BigDecimal currentPrice) {
+        return jdbcTemplate.update(
+                "UPDATE portfolio_holding SET current_value = quantity * ? WHERE asset_id = ?",
+                currentPrice,
+                assetId
+        );
     }
 
     public Optional<PortfolioHolding> findByPortfolioIdAndAssetId(Long portfolioId, Long assetId) {
