@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,5 +82,49 @@ public class PortfolioHoldingRepository {
 
     public int delete(Long id) {
         return jdbcTemplate.update("DELETE FROM portfolio_holding WHERE id = ?", id);
+    }
+
+    public Optional<PortfolioHolding> findByPortfolioIdAndAssetId(Long portfolioId, Long assetId) {
+        List<PortfolioHolding> rows = jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE portfolio_id = ? AND asset_id = ?",
+                rowMapper,
+                portfolioId,
+                assetId
+        );
+        return rows.stream().findFirst();
+    }
+
+    public PortfolioHolding upsertBuyHolding(Long portfolioId,
+                                             Long assetId,
+                                             BigDecimal quantity,
+                                             BigDecimal buyPrice,
+                                             BigDecimal markPrice) {
+        BigDecimal investedAmount = buyPrice.multiply(quantity);
+        BigDecimal currentValue = markPrice.multiply(quantity);
+
+        return jdbcTemplate.queryForObject(
+                """
+                INSERT INTO portfolio_holding(portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (portfolio_id, asset_id) DO UPDATE
+                SET quantity = portfolio_holding.quantity + EXCLUDED.quantity,
+                    invested_amount = portfolio_holding.invested_amount + EXCLUDED.invested_amount,
+                    average_buy_price = CASE
+                        WHEN (portfolio_holding.quantity + EXCLUDED.quantity) = 0 THEN 0
+                        ELSE (portfolio_holding.invested_amount + EXCLUDED.invested_amount)
+                             / (portfolio_holding.quantity + EXCLUDED.quantity)
+                    END,
+                    current_value = (portfolio_holding.quantity + EXCLUDED.quantity) * ?
+                RETURNING id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value
+                """,
+                rowMapper,
+                portfolioId,
+                assetId,
+                quantity,
+                buyPrice,
+                investedAmount,
+                currentValue,
+                markPrice
+        );
     }
 }
