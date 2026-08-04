@@ -67,6 +67,14 @@ public class PortfolioHoldingRepository {
         );
     }
 
+    public List<PortfolioHolding> findByPortfolioId(Long portfolioId) {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE portfolio_id = ? ORDER BY id",
+                rowMapper,
+                portfolioId
+        );
+    }
+
     public int update(PortfolioHolding holding) {
         return jdbcTemplate.update(
                 "UPDATE portfolio_holding SET portfolio_id = ?, asset_id = ?, quantity = ?, average_buy_price = ?, invested_amount = ?, current_value = ? WHERE id = ?",

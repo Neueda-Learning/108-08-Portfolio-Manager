@@ -2,9 +2,11 @@ package com.example.controller;
 
 import com.example.model.Customer;
 import com.example.model.FundManager;
+import com.example.model.FundManagerDashboard;
 import com.example.security.RoleAccess;
 import com.example.security.RoleAccess.Role;
 import com.example.service.CustomerService;
+import com.example.service.DashboardService;
 import com.example.service.FundManagerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,14 @@ import java.util.List;
 public class FundManagerController {
     private final FundManagerService fundManagerService;
     private final CustomerService customerService;
+    private final DashboardService dashboardService;
 
-    public FundManagerController(FundManagerService fundManagerService, CustomerService customerService) {
+    public FundManagerController(FundManagerService fundManagerService,
+                                 CustomerService customerService,
+                                 DashboardService dashboardService) {
         this.fundManagerService = fundManagerService;
         this.customerService = customerService;
+        this.dashboardService = dashboardService;
     }
 
     @GetMapping
@@ -78,6 +84,22 @@ public class FundManagerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Fund manager can only view own customers");
         }
         return customerService.findByFundManagerId(id);
+    }
+
+    @GetMapping("/{id}/dashboard")
+    public FundManagerDashboard dashboard(@PathVariable Long id,
+                                          @RequestHeader("X-User-Role") String roleHeader,
+                                          @RequestHeader(value = "X-Fund-Manager-Id", required = false) Long fundManagerIdHeader) {
+        Role role = RoleAccess.parseRole(roleHeader);
+        if (role == Role.CUSTOMER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer cannot access fund manager dashboard");
+        }
+        if (role == Role.FUND_MANAGER && (fundManagerIdHeader == null || !id.equals(fundManagerIdHeader))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Fund manager can only view own dashboard");
+        }
+        fundManagerService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fund manager not found"));
+        return dashboardService.buildFundManagerDashboard(id);
     }
 
     @PutMapping("/{id}")

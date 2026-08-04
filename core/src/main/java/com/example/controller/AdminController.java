@@ -1,8 +1,11 @@
 package com.example.controller;
 
 import com.example.model.Admin;
+import com.example.model.AdminDashboard;
+import com.example.model.PermissionSummary;
 import com.example.security.RoleAccess;
 import com.example.service.AdminService;
+import com.example.service.DashboardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +26,11 @@ import java.util.List;
 @RequestMapping("/api/admins")
 public class AdminController {
     private final AdminService adminService;
+    private final DashboardService dashboardService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, DashboardService dashboardService) {
         this.adminService = adminService;
+        this.dashboardService = dashboardService;
     }
 
     @GetMapping
@@ -39,6 +44,18 @@ public class AdminController {
         RoleAccess.requireAdmin(RoleAccess.parseRole(roleHeader));
         return adminService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found"));
+    }
+
+    @GetMapping("/dashboard")
+    public AdminDashboard dashboard(@RequestHeader("X-User-Role") String roleHeader) {
+        RoleAccess.requireAdmin(RoleAccess.parseRole(roleHeader));
+        return dashboardService.buildAdminDashboard();
+    }
+
+    @GetMapping("/permissions")
+    public java.util.List<PermissionSummary> permissions(@RequestHeader("X-User-Role") String roleHeader) {
+        RoleAccess.requireAdmin(RoleAccess.parseRole(roleHeader));
+        return dashboardService.getPermissionCatalog();
     }
 
     @PostMapping

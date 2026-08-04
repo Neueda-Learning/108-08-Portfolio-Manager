@@ -1,10 +1,12 @@
 package com.example.controller;
 
 import com.example.model.Customer;
+import com.example.model.CustomerDashboard;
 import com.example.model.Portfolio;
 import com.example.security.RoleAccess;
 import com.example.security.RoleAccess.Role;
 import com.example.service.CustomerService;
+import com.example.service.DashboardService;
 import com.example.service.PortfolioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,14 @@ import java.util.List;
 public class CustomerController {
     private final CustomerService customerService;
     private final PortfolioService portfolioService;
+    private final DashboardService dashboardService;
 
-    public CustomerController(CustomerService customerService, PortfolioService portfolioService) {
+    public CustomerController(CustomerService customerService,
+                              PortfolioService portfolioService,
+                              DashboardService dashboardService) {
         this.customerService = customerService;
         this.portfolioService = portfolioService;
+        this.dashboardService = dashboardService;
     }
 
     @GetMapping
@@ -61,6 +67,19 @@ public class CustomerController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer can only view own portfolio");
         }
         return portfolioService.findByCustomerId(id);
+    }
+
+    @GetMapping("/{id}/dashboard")
+    public CustomerDashboard dashboard(@PathVariable Long id,
+                                       @RequestHeader("X-User-Role") String roleHeader,
+                                       @RequestHeader(value = "X-Customer-Id", required = false) Long customerIdHeader) {
+        Role role = RoleAccess.parseRole(roleHeader);
+        if (role == Role.CUSTOMER && (customerIdHeader == null || !id.equals(customerIdHeader))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer can only view own dashboard");
+        }
+        customerService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+        return dashboardService.buildCustomerDashboard(id);
     }
 
     @PostMapping
