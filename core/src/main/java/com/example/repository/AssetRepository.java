@@ -46,10 +46,10 @@ public class AssetRepository {
         Map<String, Object> keys = keyHolder.getKeys();
         if (keys != null && keys.get("id") instanceof Number idValue) {
             key = idValue;
-        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().getFirst().get("id") instanceof Number idValue) {
+        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().get(0).get("id") instanceof Number idValue) {
             key = idValue;
-        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().getFirst().size() == 1) {
-            Object firstValue = keyHolder.getKeyList().getFirst().values().iterator().next();
+        } else if (keyHolder.getKeyList().size() == 1 && keyHolder.getKeyList().get(0).size() == 1) {
+            Object firstValue = keyHolder.getKeyList().get(0).values().iterator().next();
             if (firstValue instanceof Number numberValue) {
                 key = numberValue;
             }
