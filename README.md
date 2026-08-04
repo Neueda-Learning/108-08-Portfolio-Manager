@@ -1,5 +1,20 @@
 # 108-08-Portfolio-Manager
 
+## Current MVP implementation
+
+- Backend uses **Spring Boot + Spring JDBC + JdbcTemplate** with PostgreSQL (Supabase).
+- Role flow:
+  - **ADMIN/FUND_MANAGER**: manage customers and portfolios.
+  - **CUSTOMER**: view-only access for own portfolio endpoints.
+- Asset universe is **stock-only** for MVP and is seeded at app startup from:
+  - `core/src/main/resources/data/stocks.csv`
+- Frontend login uses **Supabase Auth** (email/password) and sends role headers to the backend.
+
+Required frontend env vars:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
 
 Project Architecture --------
 
@@ -160,7 +175,7 @@ Services:
 Before running, copy env values and fill your Supabase connection:
 
 ```bash
-cp .env.example .env
+cp .env.local .env
 ```
 
 To stop and remove containers:
