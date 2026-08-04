@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.model.PortfolioHolding;
+import com.example.model.PortfolioHoldingView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -30,6 +31,20 @@ public class PortfolioHoldingRepository {
             rs.getBigDecimal("invested_amount"),
             rs.getBigDecimal("current_value")
     );
+
+        private final RowMapper<PortfolioHoldingView> detailRowMapper = (rs, rowNum) -> new PortfolioHoldingView(
+            rs.getLong("id"),
+            rs.getLong("portfolio_id"),
+            rs.getLong("asset_id"),
+            rs.getString("symbol"),
+            rs.getString("name"),
+            rs.getString("asset_type"),
+            rs.getBigDecimal("quantity"),
+            rs.getBigDecimal("average_buy_price"),
+            rs.getBigDecimal("invested_amount"),
+            rs.getBigDecimal("current_value"),
+            rs.getBigDecimal("current_price")
+        );
 
     public PortfolioHolding create(PortfolioHolding holding) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -92,6 +107,30 @@ public class PortfolioHoldingRepository {
                 assetId
         );
         return rows.stream().findFirst();
+    }
+
+    public List<PortfolioHoldingView> findDetailedByPortfolioId(Long portfolioId) {
+        return jdbcTemplate.query(
+                """
+                SELECT ph.id,
+                       ph.portfolio_id,
+                       ph.asset_id,
+                       ph.quantity,
+                       ph.average_buy_price,
+                       ph.invested_amount,
+                       ph.current_value,
+                       a.symbol,
+                       a.name,
+                       a.asset_type,
+                       a.current_price
+                FROM portfolio_holding ph
+                JOIN asset a ON a.id = ph.asset_id
+                WHERE ph.portfolio_id = ?
+                ORDER BY a.symbol
+                """,
+                detailRowMapper,
+                portfolioId
+        );
     }
 
     public PortfolioHolding upsertBuyHolding(Long portfolioId,
