@@ -59,6 +59,15 @@ public class PortfolioRepository {
         return rows.stream().findFirst();
     }
 
+    public Optional<Portfolio> findByIdForUpdate(Long id) {
+        List<Portfolio> rows = jdbcTemplate.query(
+                "SELECT id, customer_id, portfolio_name, total_investment, current_value, created_at FROM portfolio WHERE id = ? FOR UPDATE",
+                rowMapper,
+                id
+        );
+        return rows.stream().findFirst();
+    }
+
     public List<Portfolio> findAll() {
         return jdbcTemplate.query(
                 "SELECT id, customer_id, portfolio_name, total_investment, current_value, created_at FROM portfolio ORDER BY id",
@@ -88,5 +97,26 @@ public class PortfolioRepository {
 
     public int delete(Long id) {
         return jdbcTemplate.update("DELETE FROM portfolio WHERE id = ?", id);
+    }
+
+    public int refreshTotalsFromHoldings(Long portfolioId) {
+        return jdbcTemplate.update(
+                """
+                UPDATE portfolio p
+                SET total_investment = totals.total_investment,
+                    current_value = totals.current_value
+                FROM (
+                    SELECT ? AS portfolio_id,
+                           COALESCE(SUM(ph.invested_amount), 0) AS total_investment,
+                           COALESCE(SUM(ph.quantity * COALESCE(a.current_price, ph.average_buy_price)), 0) AS current_value
+                    FROM portfolio_holding ph
+                    LEFT JOIN asset a ON a.id = ph.asset_id
+                    WHERE ph.portfolio_id = ?
+                ) totals
+                WHERE p.id = totals.portfolio_id
+                """,
+                portfolioId,
+                portfolioId
+        );
     }
 }

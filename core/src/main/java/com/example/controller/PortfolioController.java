@@ -2,9 +2,12 @@ package com.example.controller;
 
 import com.example.model.PortfolioAnalytics;
 import com.example.model.Portfolio;
+import com.example.model.Customer;
 import com.example.security.RoleAccess;
 import com.example.security.RoleAccess.Role;
+import com.example.service.CustomerService;
 import com.example.service.PortfolioService;
+import com.example.service.PortfolioService.PurchaseResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,15 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/portfolios")
 public class PortfolioController {
     private final PortfolioService portfolioService;
+    private final CustomerService customerService;
 
-    public PortfolioController(PortfolioService portfolioService) {
+    public PortfolioController(PortfolioService portfolioService, CustomerService customerService) {
         this.portfolioService = portfolioService;
+        this.customerService = customerService;
     }
 
     @GetMapping
@@ -104,5 +110,59 @@ public class PortfolioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found");
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/transactions/purchase")
+    public PurchaseResult purchase(@PathVariable Long id,
+                                   @RequestBody PurchaseRequest request,
+                                   @RequestHeader("X-User-Role") String roleHeader,
+                                   @RequestHeader(value = "X-Fund-Manager-Id", required = false) Long fundManagerIdHeader) {
+        Role role = RoleAccess.parseRole(roleHeader);
+        RoleAccess.requireAdminOrFundManager(role);
+
+        if (role == Role.FUND_MANAGER) {
+            if (fundManagerIdHeader == null) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "X-Fund-Manager-Id header is required");
+            }
+            Portfolio portfolio = portfolioService.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+            Customer customer = customerService.findById(portfolio.getCustomerId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+            if (!fundManagerIdHeader.equals(customer.getFundManagerId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Fund manager can only buy for own customers");
+            }
+        }
+
+        return portfolioService.buyAsset(id, request.getAssetSymbol(), request.getQuantity(), request.getPrice());
+    }
+
+    public static class PurchaseRequest {
+        private String assetSymbol;
+        private BigDecimal quantity;
+        private BigDecimal price;
+
+        public String getAssetSymbol() {
+            return assetSymbol;
+        }
+
+        public void setAssetSymbol(String assetSymbol) {
+            this.assetSymbol = assetSymbol;
+        }
+
+        public BigDecimal getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(BigDecimal quantity) {
+            this.quantity = quantity;
+        }
+
+        public BigDecimal getPrice() {
+            return price;
+        }
+
+        public void setPrice(BigDecimal price) {
+            this.price = price;
+        }
     }
 }
