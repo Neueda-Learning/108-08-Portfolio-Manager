@@ -2,7 +2,6 @@ package com.example.controller;
 
 import com.example.model.PortfolioAnalytics;
 import com.example.model.Portfolio;
-import com.example.model.PortfolioHoldingView;
 import com.example.model.Customer;
 import com.example.security.RoleAccess;
 import com.example.security.RoleAccess.Role;
@@ -70,20 +69,6 @@ public class PortfolioController {
         }
         return portfolioService.getPortfolioAnalytics(id, benchmark)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
-    }
-
-    @GetMapping("/{id}/holdings")
-    public List<PortfolioHoldingView> holdings(@PathVariable Long id,
-                                               @RequestHeader("X-User-Role") String roleHeader,
-                                               @RequestHeader(value = "X-Customer-Id", required = false) Long customerIdHeader) {
-        Role role = RoleAccess.parseRole(roleHeader);
-        if (role == Role.CUSTOMER && (customerIdHeader == null
-                || !portfolioService.isPortfolioOwnedByCustomer(id, customerIdHeader))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Customer can only view own holdings");
-        }
-        portfolioService.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
-        return portfolioService.findHoldingsByPortfolioId(id);
     }
 
     @PostMapping

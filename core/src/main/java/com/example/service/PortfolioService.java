@@ -3,7 +3,6 @@ package com.example.service;
 import com.example.model.Benchmark;
 import com.example.model.Asset;
 import com.example.model.PortfolioHolding;
-import com.example.model.PortfolioHoldingView;
 import com.example.model.PortfolioAnalytics;
 import com.example.model.Portfolio;
 import com.example.model.TransactionHistory;
@@ -58,10 +57,6 @@ public class PortfolioService {
 
     public List<Portfolio> findByCustomerId(Long customerId) {
         return portfolioRepository.findByCustomerId(customerId);
-    }
-
-    public List<PortfolioHoldingView> findHoldingsByPortfolioId(Long portfolioId) {
-        return portfolioHoldingRepository.findDetailedByPortfolioId(portfolioId);
     }
 
     public int update(Portfolio portfolio) {
