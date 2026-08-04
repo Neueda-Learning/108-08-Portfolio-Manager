@@ -1,15 +1,10 @@
 .app {
-<<<<<<< HEAD
   max-width: 1080px;
-=======
-  max-width: 900px;
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
   margin: 0 auto;
   padding: 36px 24px 48px;
   text-align: left;
 }
 
-<<<<<<< HEAD
 .app::before {
   content: '';
   position: fixed;
@@ -85,20 +80,6 @@
   background: #0f766e;
   border-color: #0f766e;
   color: #fff;
-=======
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.meta {
-  margin-top: 6px;
-  color: var(--text);
-  font-size: 0.95rem;
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
 }
 
 .card {
@@ -602,7 +583,6 @@
 }
 
 .form input,
-.form select,
 .form button {
   padding: 11px;
   font: inherit;
@@ -617,40 +597,9 @@
   cursor: pointer;
 }
 
-<<<<<<< HEAD
 .form button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-=======
-.auth-switch {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.auth-switch button {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-h);
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.auth-switch button.active {
-  background: #2a7fff;
-  color: #fff;
-  border-color: #2a7fff;
-}
-
-.secondary {
-  border: 1px solid var(--border);
-  color: var(--text-h);
-  background: transparent;
-  cursor: pointer;
-  padding: 10px 14px;
-  border-radius: 8px;
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
 }
 
 .error {
@@ -658,7 +607,6 @@
   margin-top: 10px;
 }
 
-<<<<<<< HEAD
 .login-shell {
   min-height: 100svh;
   display: grid;
@@ -731,6 +679,10 @@
   gap: 4px;
 }
 
+.hero-points strong {
+  color: var(--text-h);
+}
+
 .login-metrics {
   margin-top: 18px;
   display: grid;
@@ -755,10 +707,6 @@
 .login-metrics strong {
   color: var(--text-h);
   font-size: 18px;
-}
-
-.hero-points strong {
-  color: var(--text-h);
 }
 
 .login-panel h2 {
@@ -858,14 +806,3 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-=======
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-ul {
-  padding-left: 18px;
-}
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33

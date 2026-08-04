@@ -1,13 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { apiFetch, getApiBaseUrl } from './api'
-import { hasSupabaseConfig, supabase } from './supabase'
-
-const ROLE_OPTIONS = [
-  { label: 'Admin', value: 'ADMIN' },
-  { label: 'Fund Manager', value: 'FUND_MANAGER' },
-  { label: 'Customer', value: 'CUSTOMER' },
-]
 
 const adminViews = ['Dashboard', 'Customers', 'Portfolio', 'Performance']
 const customerViews = ['Dashboard', 'Portfolio', 'Performance']
@@ -65,82 +58,19 @@ const initialCustomers = [
 
 const initialHoldingsByCustomer = {
   1: [
-    {
-      id: 101,
-      symbol: 'HDFCBANK',
-      type: 'Equity',
-      quantity: 25,
-      buyPrice: 1500,
-      currentPrice: 1650,
-    },
-    {
-      id: 102,
-      symbol: 'SBIGILT',
-      type: 'Debt Fund',
-      quantity: 40,
-      buyPrice: 120,
-      currentPrice: 124,
-    },
-    {
-      id: 103,
-      symbol: 'LIQUIDBEES',
-      type: 'Cash ETF',
-      quantity: 100,
-      buyPrice: 100,
-      currentPrice: 101,
-    },
+    { id: 101, symbol: 'HDFCBANK', type: 'Equity', quantity: 25, buyPrice: 1500, currentPrice: 1650 },
+    { id: 102, symbol: 'SBIGILT', type: 'Debt Fund', quantity: 40, buyPrice: 120, currentPrice: 124 },
+    { id: 103, symbol: 'LIQUIDBEES', type: 'Cash ETF', quantity: 100, buyPrice: 100, currentPrice: 101 },
   ],
   2: [
-    {
-      id: 201,
-      symbol: 'INFY',
-      type: 'Equity',
-      quantity: 35,
-      buyPrice: 1420,
-      currentPrice: 1560,
-    },
-    {
-      id: 202,
-      symbol: 'ICICIPRU',
-      type: 'Hybrid Fund',
-      quantity: 50,
-      buyPrice: 610,
-      currentPrice: 635,
-    },
-    {
-      id: 203,
-      symbol: 'NIFTYBEES',
-      type: 'ETF',
-      quantity: 45,
-      buyPrice: 224,
-      currentPrice: 236,
-    },
+    { id: 201, symbol: 'INFY', type: 'Equity', quantity: 35, buyPrice: 1420, currentPrice: 1560 },
+    { id: 202, symbol: 'ICICIPRU', type: 'Hybrid Fund', quantity: 50, buyPrice: 610, currentPrice: 635 },
+    { id: 203, symbol: 'NIFTYBEES', type: 'ETF', quantity: 45, buyPrice: 224, currentPrice: 236 },
   ],
   3: [
-    {
-      id: 301,
-      symbol: 'TATAELXSI',
-      type: 'Equity',
-      quantity: 20,
-      buyPrice: 7600,
-      currentPrice: 8125,
-    },
-    {
-      id: 302,
-      symbol: 'NIFTYBEES',
-      type: 'ETF',
-      quantity: 60,
-      buyPrice: 221,
-      currentPrice: 235,
-    },
-    {
-      id: 303,
-      symbol: 'GOLDBEES',
-      type: 'Gold ETF',
-      quantity: 32,
-      buyPrice: 56,
-      currentPrice: 62,
-    },
+    { id: 301, symbol: 'TATAELXSI', type: 'Equity', quantity: 20, buyPrice: 7600, currentPrice: 8125 },
+    { id: 302, symbol: 'NIFTYBEES', type: 'ETF', quantity: 60, buyPrice: 221, currentPrice: 235 },
+    { id: 303, symbol: 'GOLDBEES', type: 'Gold ETF', quantity: 32, buyPrice: 56, currentPrice: 62 },
   ],
 }
 
@@ -227,167 +157,53 @@ const getLinePoints = (series, key, minValue, maxValue) => {
 }
 
 function App() {
-<<<<<<< HEAD
   const [authUser, setAuthUser] = useState(null)
   const [loginUsername, setLoginUsername] = useState('manager')
   const [loginPassword, setLoginPassword] = useState('manager123')
   const [loginError, setLoginError] = useState('')
-
   const [activeView, setActiveView] = useState('Dashboard')
   const [customers] = useState(initialCustomers)
   const [selectedCustomerId, setSelectedCustomerId] = useState(initialCustomers[0].id)
   const [holdingsByCustomer, setHoldingsByCustomer] = useState(initialHoldingsByCustomer)
-
   const [status, setStatus] = useState('Checking connection...')
   const [accounts, setAccounts] = useState([])
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
-
   const [assetSymbol, setAssetSymbol] = useState('')
   const [assetType, setAssetType] = useState('Equity')
   const [assetQuantity, setAssetQuantity] = useState('')
   const [assetBuyPrice, setAssetBuyPrice] = useState('')
   const [assetCurrentPrice, setAssetCurrentPrice] = useState('')
   const [portfolioError, setPortfolioError] = useState('')
-
-=======
-  const [session, setSession] = useState(null)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [authMode, setAuthMode] = useState('signin')
-  const [selectedRole, setSelectedRole] = useState('ADMIN')
-  const [manualCustomerId, setManualCustomerId] = useState('')
-  const [manualFundManagerId, setManualFundManagerId] = useState('')
-  const [signupCustomerId, setSignupCustomerId] = useState('')
-  const [signupFundManagerId, setSignupFundManagerId] = useState('')
-  const [authError, setAuthError] = useState('')
-  const [authMessage, setAuthMessage] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState('Not connected')
-  const [customers, setCustomers] = useState([])
-  const [assets, setAssets] = useState([])
-  const [portfolios, setPortfolios] = useState([])
-  const [selectedCustomerId, setSelectedCustomerId] = useState('')
-  const [newCustomer, setNewCustomer] = useState({
-    fundManagerId: '',
-    name: '',
-    email: '',
-    phone: '',
-  })
-  const [newPortfolio, setNewPortfolio] = useState({
-    customerId: '',
-    portfolioName: '',
-    totalInvestment: '',
-    currentValue: '',
-  })
-  const [appError, setAppError] = useState('')
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
   const apiBaseUrl = getApiBaseUrl()
 
-  useEffect(() => {
-    if (!supabase) {
-      return undefined
+  const loadAccounts = async () => {
+    const response = await apiFetch('/accounts')
+    if (!response.ok) {
+      throw new Error('Could not load accounts')
     }
-    supabase.auth.getSession().then(({ data }) => setSession(data.session))
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-    })
-    return () => data.subscription.unsubscribe()
-  }, [])
 
-  const authContext = useMemo(() => {
-    const userMetadata = session?.user?.user_metadata || {}
-    const customerId = userMetadata.customer_id || (manualCustomerId ? Number(manualCustomerId) : null)
-    const fundManagerId = userMetadata.fund_manager_id || (manualFundManagerId ? Number(manualFundManagerId) : null)
-    return {
-      token: session?.access_token || '',
-      role: selectedRole,
-      customerId,
-      fundManagerId,
-    }
-  }, [session, selectedRole, manualCustomerId, manualFundManagerId])
-
-  const loadForRole = async () => {
-    if (!session) {
-      return
-    }
-    setAppError('')
-    setStatus('Loading data...')
-
-    try {
-      const assetResponse = await apiFetch('/assets', {}, authContext)
-      if (!assetResponse.ok) {
-        throw new Error('Failed to load stock universe')
-      }
-      setAssets(await assetResponse.json())
-
-      if (authContext.role === 'CUSTOMER') {
-        if (!authContext.customerId) {
-          setStatus('Logged in. Add Customer ID to view portfolio.')
-          setPortfolios([])
-          return
-        }
-        const response = await apiFetch(`/customers/${authContext.customerId}/portfolios`, {}, authContext)
-        if (!response.ok) {
-          throw new Error('Failed to load customer portfolio')
-        }
-        setPortfolios(await response.json())
-        setCustomers([])
-        setStatus('Customer portfolio loaded')
-        return
-      }
-
-      const customerPath = authContext.role === 'FUND_MANAGER' && authContext.fundManagerId
-        ? `/fund-managers/${authContext.fundManagerId}/customers`
-        : '/customers'
-      const customersResponse = await apiFetch(customerPath, {}, authContext)
-      if (!customersResponse.ok) {
-        throw new Error('Failed to load customers')
-      }
-      const customerData = await customersResponse.json()
-      setCustomers(customerData)
-      setStatus('Management data loaded')
-      if (customerData.length > 0) {
-        const initialCustomerId = customerData[0].id
-        setSelectedCustomerId(String(initialCustomerId))
-        setNewPortfolio((prev) => ({ ...prev, customerId: String(initialCustomerId) }))
-      } else {
-        setSelectedCustomerId('')
-      }
-      setPortfolios([])
-    } catch (error) {
-      setStatus('Load failed')
-      setAppError(error.message || 'Unable to load data')
-    }
+    const data = await response.json()
+    setAccounts(data)
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadForRole()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, authContext.role, authContext.customerId, authContext.fundManagerId])
-
-  useEffect(() => {
-    const loadSelectedCustomerPortfolios = async () => {
-      if (!session || authContext.role === 'CUSTOMER' || !selectedCustomerId) {
-        return
-      }
+    const initialize = async () => {
       try {
-        const response = await apiFetch(`/customers/${selectedCustomerId}/portfolios`, {}, authContext)
-        if (!response.ok) {
-          throw new Error('Failed to load portfolios for customer')
+        const pingResponse = await apiFetch('/ping')
+        if (!pingResponse.ok) {
+          throw new Error('Core API not reachable')
         }
-        setPortfolios(await response.json())
-      } catch (error) {
-        setAppError(error.message || 'Unable to load portfolios')
+
+        setStatus('Connected to API')
+        await loadAccounts()
+      } catch {
+        setStatus('Connection failed')
+        setError('Start the core app or configure Supabase function URL.')
       }
     }
-    loadSelectedCustomerPortfolios()
-  }, [selectedCustomerId, session, authContext])
 
-<<<<<<< HEAD
     initialize()
   }, [])
 
@@ -408,14 +224,8 @@ function App() {
 
   const selectedCustomer =
     scopedCustomers.find((customer) => customer.id === selectedCustomerId) || scopedCustomers[0]
-
-  const selectedCustomerHoldings = selectedCustomer
-    ? holdingsByCustomer[selectedCustomer.id] || []
-    : []
-
-  const selectedPerformance = selectedCustomer
-    ? initialPerformanceByCustomer[selectedCustomer.id] || []
-    : []
+  const selectedCustomerHoldings = selectedCustomer ? holdingsByCustomer[selectedCustomer.id] || [] : []
+  const selectedPerformance = selectedCustomer ? initialPerformanceByCustomer[selectedCustomer.id] || [] : []
 
   const portfolioTotals = selectedCustomerHoldings.reduce(
     (totals, holding) => {
@@ -435,8 +245,7 @@ function App() {
 
     const matchedUser = demoUsers.find(
       (user) =>
-        user.username.toLowerCase() === loginUsername.trim().toLowerCase() &&
-        user.password === loginPassword
+        user.username.toLowerCase() === loginUsername.trim().toLowerCase() && user.password === loginPassword
     )
 
     if (!matchedUser) {
@@ -463,243 +272,28 @@ function App() {
   }
 
   const handleCreate = async (event) => {
-=======
-  const signIn = async (event) => {
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
     event.preventDefault()
-    setAuthError('')
-    setAuthMessage('')
-    if (!supabase) {
-      setAuthError('Supabase configuration is missing in frontend env variables.')
-      return
-    }
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-    if (error) {
-      setAuthError(error.message)
-    }
-  }
+    setError('')
 
-  const signUp = async (event) => {
-    event.preventDefault()
-    setAuthError('')
-    setAuthMessage('')
-    if (!supabase) {
-      setAuthError('Supabase configuration is missing in frontend env variables.')
-      return
-    }
-    if (password.length < 6) {
-      setAuthError('Password must be at least 6 characters.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setAuthError('Password and confirm password do not match.')
-      return
-    }
-
-    const metadata = {
-      role: selectedRole,
-    }
-    if (selectedRole === 'CUSTOMER' && signupCustomerId) {
-      metadata.customer_id = Number(signupCustomerId)
-    }
-    if (selectedRole === 'FUND_MANAGER' && signupFundManagerId) {
-      metadata.fund_manager_id = Number(signupFundManagerId)
-    }
-
-    setLoading(true)
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: metadata },
-    })
-    setLoading(false)
-    if (error) {
-      setAuthError(error.message)
-      return
-    }
-
-    if (!data.session) {
-      setAuthMessage('Signup successful. Please verify your email, then sign in.')
-      setAuthMode('signin')
-    } else {
-      setAuthMessage('Signup successful.')
-    }
-  }
-
-  const signOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut()
-    }
-    setCustomers([])
-    setPortfolios([])
-    setAssets([])
-    setStatus('Logged out')
-  }
-
-  const createCustomer = async (event) => {
-    event.preventDefault()
-    setAppError('')
-    const fundManagerIdValue = authContext.role === 'FUND_MANAGER'
-      ? authContext.fundManagerId
-      : Number(newCustomer.fundManagerId)
-    const response = await apiFetch(
-      '/customers',
-      {
+    try {
+      const response = await apiFetch('/accounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fundManagerId: fundManagerIdValue,
-          name: newCustomer.name,
-          email: newCustomer.email,
-          phone: newCustomer.phone,
-        }),
-      },
-      authContext,
-    )
-    if (!response.ok) {
-      setAppError('Failed to create customer')
-      return
-    }
-    setNewCustomer({ fundManagerId: '', name: '', email: '', phone: '' })
-    await loadForRole()
-  }
+        body: JSON.stringify({ name, email }),
+      })
 
-  const createPortfolio = async (event) => {
-    event.preventDefault()
-    setAppError('')
-    const response = await apiFetch(
-      '/portfolios',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId: Number(newPortfolio.customerId),
-          portfolioName: newPortfolio.portfolioName,
-          totalInvestment: Number(newPortfolio.totalInvestment),
-          currentValue: Number(newPortfolio.currentValue),
-        }),
-      },
-      authContext,
-    )
-    if (!response.ok) {
-      setAppError('Failed to create portfolio')
-      return
-    }
-    setNewPortfolio((prev) => ({
-      ...prev,
-      portfolioName: '',
-      totalInvestment: '',
-      currentValue: '',
-    }))
-    if (newPortfolio.customerId) {
-      setSelectedCustomerId(newPortfolio.customerId)
+      if (!response.ok) {
+        throw new Error('Could not create account')
+      }
+
+      setName('')
+      setEmail('')
+      await loadAccounts()
+    } catch {
+      setError('Failed to save account. Check backend or Supabase logs for details.')
     }
   }
 
-  const isManagerRole = authContext.role === 'ADMIN' || authContext.role === 'FUND_MANAGER'
-
-  if (!hasSupabaseConfig) {
-    return (
-      <main className="app">
-        <h1>Portfolio Manager</h1>
-        <p className="error">
-          Missing Supabase Auth configuration. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
-        </p>
-      </main>
-    )
-  }
-
-  if (!session) {
-    return (
-      <main className="app">
-        <section className="card">
-          <h1>{authMode === 'signin' ? 'Portfolio Manager Login' : 'Portfolio Manager Signup'}</h1>
-          <p className="meta">API base: {apiBaseUrl}</p>
-          <div className="auth-switch">
-            <button
-              type="button"
-              className={authMode === 'signin' ? 'active' : ''}
-              onClick={() => {
-                setAuthMode('signin')
-                setAuthError('')
-                setAuthMessage('')
-              }}
-            >
-              Sign in
-            </button>
-            <button
-              type="button"
-              className={authMode === 'signup' ? 'active' : ''}
-              onClick={() => {
-                setAuthMode('signup')
-                setAuthError('')
-                setAuthMessage('')
-              }}
-            >
-              Sign up
-            </button>
-          </div>
-          <form className="form" onSubmit={authMode === 'signin' ? signIn : signUp}>
-            <select value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
-              {ROLE_OPTIONS.map((role) => (
-                <option key={role.value} value={role.value}>{role.label}</option>
-              ))}
-            </select>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-            {authMode === 'signup' && (
-              <>
-                <input
-                  type="password"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  required
-                />
-                {selectedRole === 'CUSTOMER' && (
-                  <input
-                    type="number"
-                    placeholder="Customer ID (optional)"
-                    value={signupCustomerId}
-                    onChange={(event) => setSignupCustomerId(event.target.value)}
-                  />
-                )}
-                {selectedRole === 'FUND_MANAGER' && (
-                  <input
-                    type="number"
-                    placeholder="Fund Manager ID (optional)"
-                    value={signupFundManagerId}
-                    onChange={(event) => setSignupFundManagerId(event.target.value)}
-                  />
-                )}
-              </>
-            )}
-            <button type="submit" disabled={loading}>
-              {loading ? (authMode === 'signin' ? 'Signing in...' : 'Signing up...') : (authMode === 'signin' ? 'Sign in' : 'Sign up')}
-            </button>
-          </form>
-          {authMessage && <p className="meta">{authMessage}</p>}
-          {authError && <p className="error">{authError}</p>}
-        </section>
-      </main>
-    )
-  }
-
-<<<<<<< HEAD
   const handleAddAsset = (event) => {
     event.preventDefault()
     setPortfolioError('')
@@ -794,12 +388,8 @@ function App() {
             return <path key={segment.type} d={getArcPath(130, 130, 100, start, end)} fill={segment.color} />
           })}
           <circle cx="130" cy="130" r="56" fill="#ffffff" />
-          <text x="130" y="126" textAnchor="middle" className="donut-total-label">
-            Total
-          </text>
-          <text x="130" y="148" textAnchor="middle" className="donut-total-value">
-            {formatCurrency(total)}
-          </text>
+          <text x="130" y="126" textAnchor="middle" className="donut-total-label">Total</text>
+          <text x="130" y="148" textAnchor="middle" className="donut-total-value">{formatCurrency(total)}</text>
         </svg>
 
         <ul className="donut-legend">
@@ -832,19 +422,15 @@ function App() {
     const bestPerformer = customerReturns.reduce((best, current) =>
       current.portfolioReturn > best.portfolioReturn ? current : best
     )
-
     const worstPerformer = customerReturns.reduce((worst, current) =>
       current.portfolioReturn < worst.portfolioReturn ? current : worst
     )
 
     const riskDistribution = scopedCustomers.reduce(
-      (distribution, customer) => {
-        const risk = customer.riskProfile
-        return {
-          ...distribution,
-          [risk]: (distribution[risk] || 0) + 1,
-        }
-      },
+      (distribution, customer) => ({
+        ...distribution,
+        [customer.riskProfile]: (distribution[customer.riskProfile] || 0) + 1,
+      }),
       {}
     )
 
@@ -862,54 +448,25 @@ function App() {
         <section className="card hero-card">
           <p className="section-kicker">Overview</p>
           <h2>Welcome, {authUser.displayName}</h2>
-          <p>
-            This workspace is designed for beginner-friendly decision making with clear visuals and
-            guided actions.
-          </p>
-          <p className="muted-text">
-            <span className="data-badge mixed">Data: Mixed</span>
-            Live for connectivity and accounts, mock for portfolio analytics until backend endpoints
-            are fully ready.
-          </p>
+          <p>This workspace is designed for beginner-friendly decision making with clear visuals and guided actions.</p>
+          <p className="muted-text"><span className="data-badge mixed">Data: Mixed</span>Live for connectivity and accounts, mock for portfolio analytics until backend endpoints are fully ready.</p>
         </section>
 
         <section className="card quick-actions-card">
           <p className="section-kicker">Action Center</p>
           <h2>Quick Actions</h2>
           <div className="quick-actions">
-            {visibleViews.includes('Customers') && (
-              <button type="button" className="quick-btn" onClick={() => setActiveView('Customers')}>
-                Review Customers
-              </button>
-            )}
-            <button type="button" className="quick-btn" onClick={() => setActiveView('Portfolio')}>
-              Manage Portfolio
-            </button>
-            <button type="button" className="quick-btn" onClick={() => setActiveView('Performance')}>
-              Compare to Market
-            </button>
+            {visibleViews.includes('Customers') && <button type="button" className="quick-btn" onClick={() => setActiveView('Customers')}>Review Customers</button>}
+            <button type="button" className="quick-btn" onClick={() => setActiveView('Portfolio')}>Manage Portfolio</button>
+            <button type="button" className="quick-btn" onClick={() => setActiveView('Performance')}>Compare to Market</button>
           </div>
         </section>
 
         <section className="summary-grid">
-          <article className="summary-card">
-            <h3>Customers in Scope</h3>
-            <p>{scopedCustomers.length}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Total Portfolio Value</h3>
-            <p>{formatCurrency(totalPortfolioValue)}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Best Performer (6M)</h3>
-            <p>{bestPerformer.name}</p>
-            <span className="summary-note">{formatPercent(bestPerformer.portfolioReturn)}</span>
-          </article>
-          <article className="summary-card">
-            <h3>Needs Attention (6M)</h3>
-            <p>{worstPerformer.name}</p>
-            <span className="summary-note">{formatPercent(worstPerformer.portfolioReturn)}</span>
-          </article>
+          <article className="summary-card"><h3>Customers in Scope</h3><p>{scopedCustomers.length}</p></article>
+          <article className="summary-card"><h3>Total Portfolio Value</h3><p>{formatCurrency(totalPortfolioValue)}</p></article>
+          <article className="summary-card"><h3>Best Performer (6M)</h3><p>{bestPerformer.name}</p><span className="summary-note">{formatPercent(bestPerformer.portfolioReturn)}</span></article>
+          <article className="summary-card"><h3>Needs Attention (6M)</h3><p>{worstPerformer.name}</p><span className="summary-note">{formatPercent(worstPerformer.portfolioReturn)}</span></article>
         </section>
 
         <section className="double-grid">
@@ -917,15 +474,9 @@ function App() {
             <p className="section-kicker">Risk Lens</p>
             <h2>Risk Profile Mix</h2>
             <ul className="risk-list">
-              {Object.entries(riskDistribution).map(([risk, count]) => (
-                <li key={risk}>
-                  <span>{risk}</span>
-                  <strong>{count}</strong>
-                </li>
-              ))}
+              {Object.entries(riskDistribution).map(([risk, count]) => (<li key={risk}><span>{risk}</span><strong>{count}</strong></li>))}
             </ul>
           </article>
-
           <article className="card">
             <p className="section-kicker">Allocation View</p>
             <h2>Allocation Snapshot</h2>
@@ -939,34 +490,15 @@ function App() {
             <h2>Live Account Endpoint Health</h2>
             <p>Backend status: {status}</p>
             <p>API base: {apiBaseUrl}</p>
-            <p className="muted-text">
-              <span className="data-badge live">Data: Live API</span>
-              Use this card to validate backend integration during demos.
-            </p>
+            <p className="muted-text"><span className="data-badge live">Data: Live API</span>Use this card to validate backend integration during demos.</p>
             <form onSubmit={handleCreate} className="form">
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
+              <input type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)} required />
+              <input type="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} required />
               <button type="submit">Save</button>
             </form>
             {error && <p className="error">{error}</p>}
             <ul className="live-list">
-              {accounts.map((account) => (
-                <li key={account.id}>
-                  #{account.id} {account.name} ({account.email})
-                </li>
-              ))}
+              {accounts.map((account) => (<li key={account.id}>#{account.id} {account.name} ({account.email})</li>))}
             </ul>
           </section>
         )}
@@ -975,56 +507,7 @@ function App() {
           <p className="section-kicker">Delivery Status</p>
           <h2>Business Requirement Coverage</h2>
           <ul className="checklist">
-            {requirementChecklist.map((item) => (
-              <li key={item}>Done: {item}</li>
-=======
-  return (
-    <main className="app">
-      <header className="header">
-        <div>
-          <h1>Portfolio Manager ({authContext.role})</h1>
-          <p className="meta">Signed in as {session.user.email}</p>
-          <p className="meta">Status: {status}</p>
-        </div>
-        <button type="button" className="secondary" onClick={signOut}>Sign out</button>
-      </header>
-
-      {authContext.role === 'CUSTOMER' && !authContext.customerId && (
-        <section className="card">
-          <h2>Link Customer Profile</h2>
-          <p className="meta">Enter your customer ID if it is not present in Supabase user metadata.</p>
-          <input
-            type="number"
-            value={manualCustomerId}
-            onChange={(event) => setManualCustomerId(event.target.value)}
-            placeholder="Customer ID"
-          />
-        </section>
-      )}
-
-      {authContext.role === 'FUND_MANAGER' && !authContext.fundManagerId && (
-        <section className="card">
-          <h2>Link Fund Manager Profile</h2>
-          <p className="meta">Enter your fund manager ID if it is not present in Supabase user metadata.</p>
-          <input
-            type="number"
-            value={manualFundManagerId}
-            onChange={(event) => setManualFundManagerId(event.target.value)}
-            placeholder="Fund Manager ID"
-          />
-        </section>
-      )}
-
-      <section className="card">
-        <h2>MVP Stock Universe (CSV Seeded)</h2>
-        {assets.length === 0 ? <p>No stocks loaded yet.</p> : (
-          <ul>
-            {assets.map((asset) => (
-              <li key={asset.id}>
-                {asset.symbol} - {asset.name} @ {asset.currentPrice}
-              </li>
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
-            ))}
+            {requirementChecklist.map((item) => (<li key={item}>Done: {item}</li>))}
           </ul>
         </section>
       </>
@@ -1033,12 +516,7 @@ function App() {
 
   const renderCustomers = () => {
     if (authUser.role !== 'admin') {
-      return (
-        <section className="card">
-          <h2>Customers</h2>
-          <p className="muted-text">Customer logins are intentionally restricted from this page.</p>
-        </section>
-      )
+      return <section className="card"><h2>Customers</h2><p className="muted-text">Customer logins are intentionally restricted from this page.</p></section>
     }
 
     return (
@@ -1047,40 +525,22 @@ function App() {
           <p className="section-kicker">Client Directory</p>
           <h2>Customers</h2>
           <p>Select any customer to manage portfolio and performance.</p>
-          <p className="muted-text">
-            <span className="data-badge mock">Data: Mock</span>
-            Customer identity and risk profile data are temporary until customer API endpoints are live.
-          </p>
+          <p className="muted-text"><span className="data-badge mock">Data: Mock</span>Customer identity and risk profile data are temporary until customer API endpoints are live.</p>
         </section>
 
         <section className="card customers-list">
           {customers.map((customer) => {
             const customerHoldings = holdingsByCustomer[customer.id] || []
             const customerValue = getTotalValue(customerHoldings)
-            const customerReturn = getSeriesReturn(
-              initialPerformanceByCustomer[customer.id] || [],
-              'portfolio'
-            )
+            const customerReturn = getSeriesReturn(initialPerformanceByCustomer[customer.id] || [], 'portfolio')
 
             return (
               <article key={customer.id} className="customer-item">
-                <div>
-                  <p className="customer-name">{customer.name}</p>
-                  <p>{customer.email}</p>
-                </div>
-                <div className="customer-stats">
-                  <span>{formatCurrency(customerValue)}</span>
-                  <span>{formatPercent(customerReturn)}</span>
-                </div>
+                <div><p className="customer-name">{customer.name}</p><p>{customer.email}</p></div>
+                <div className="customer-stats"><span>{formatCurrency(customerValue)}</span><span>{formatPercent(customerReturn)}</span></div>
                 <div className="customer-actions">
                   <span className="risk-chip">{customer.riskProfile}</span>
-                  <button
-                    type="button"
-                    className={`select-btn ${selectedCustomerId === customer.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedCustomerId(customer.id)}
-                  >
-                    {selectedCustomerId === customer.id ? 'Current' : 'Select'}
-                  </button>
+                  <button type="button" className={`select-btn ${selectedCustomerId === customer.id ? 'selected' : ''}`} onClick={() => setSelectedCustomerId(customer.id)}>{selectedCustomerId === customer.id ? 'Current' : 'Select'}</button>
                 </div>
               </article>
             )
@@ -1098,29 +558,14 @@ function App() {
         <section className="card">
           <p className="section-kicker">Holdings Workspace</p>
           <h2>Portfolio: {selectedCustomer.name}</h2>
-          <p>
-            Risk profile: {selectedCustomer.riskProfile} | Investment: {formatCurrency(portfolioTotals.investmentValue)} | Current:{' '}
-            {formatCurrency(portfolioTotals.currentValue)}
-          </p>
-          <p className="muted-text">
-            <span className="data-badge mock">Data: Mock</span>
-            Asset updates are instant in this demo. Admin login can edit, customer login can view.
-          </p>
+          <p>Risk profile: {selectedCustomer.riskProfile} | Investment: {formatCurrency(portfolioTotals.investmentValue)} | Current: {formatCurrency(portfolioTotals.currentValue)}</p>
+          <p className="muted-text"><span className="data-badge mock">Data: Mock</span>Asset updates are instant in this demo. Admin login can edit, customer login can view.</p>
         </section>
 
         <section className="summary-grid">
-          <article className="summary-card">
-            <h3>Total Gain/Loss</h3>
-            <p className={totalGain >= 0 ? 'value-up' : 'value-down'}>{formatCurrency(totalGain)}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Holdings Count</h3>
-            <p>{selectedCustomerHoldings.length}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Best for Beginners</h3>
-            <p>{selectedCustomer.riskProfile === 'Aggressive' ? 'Review volatility' : 'Balanced exposure'}</p>
-          </article>
+          <article className="summary-card"><h3>Total Gain/Loss</h3><p className={totalGain >= 0 ? 'value-up' : 'value-down'}>{formatCurrency(totalGain)}</p></article>
+          <article className="summary-card"><h3>Holdings Count</h3><p>{selectedCustomerHoldings.length}</p></article>
+          <article className="summary-card"><h3>Best for Beginners</h3><p>{selectedCustomer.riskProfile === 'Aggressive' ? 'Review volatility' : 'Balanced exposure'}</p></article>
         </section>
 
         <section className="double-grid">
@@ -1129,47 +574,22 @@ function App() {
             <h2>Asset Allocation Pie</h2>
             {renderAllocationDonut(selectedCustomerHoldings)}
           </article>
-
           <article className="card">
             <p className="section-kicker">Detailed Positions</p>
             <h2>Holdings Table</h2>
             <div className="table-wrap">
               <table className="portfolio-table">
-                <thead>
-                  <tr>
-                    <th>Asset</th>
-                    <th>Type</th>
-                    <th>Qty</th>
-                    <th>Investment</th>
-                    <th>Current</th>
-                    <th>P/L</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Asset</th><th>Type</th><th>Qty</th><th>Investment</th><th>Current</th><th>P/L</th><th>Action</th></tr></thead>
                 <tbody>
                   {selectedCustomerHoldings.map((asset) => {
                     const invested = asset.quantity * asset.buyPrice
                     const current = asset.quantity * asset.currentPrice
                     const gain = current - invested
-
                     return (
                       <tr key={asset.id}>
-                        <td>{asset.symbol}</td>
-                        <td>{asset.type}</td>
-                        <td>{asset.quantity}</td>
-                        <td>{formatCurrency(invested)}</td>
-                        <td>{formatCurrency(current)}</td>
+                        <td>{asset.symbol}</td><td>{asset.type}</td><td>{asset.quantity}</td><td>{formatCurrency(invested)}</td><td>{formatCurrency(current)}</td>
                         <td className={gain >= 0 ? 'value-up' : 'value-down'}>{formatCurrency(gain)}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="remove-btn"
-                            onClick={() => handleRemoveAsset(asset.id)}
-                            disabled={authUser.role !== 'admin'}
-                          >
-                            Remove
-                          </button>
-                        </td>
+                        <td><button type="button" className="remove-btn" onClick={() => handleRemoveAsset(asset.id)} disabled={authUser.role !== 'admin'}>Remove</button></td>
                       </tr>
                     )
                   })}
@@ -1184,52 +604,12 @@ function App() {
           <h2>Add Asset</h2>
           <p className="muted-text">Available for fund manager login. Customers can only view this section.</p>
           <form className="form" onSubmit={handleAddAsset}>
-            <input
-              type="text"
-              placeholder="Asset symbol"
-              value={assetSymbol}
-              onChange={(event) => setAssetSymbol(event.target.value)}
-              disabled={authUser.role !== 'admin'}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Asset type"
-              value={assetType}
-              onChange={(event) => setAssetType(event.target.value)}
-              disabled={authUser.role !== 'admin'}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Quantity"
-              min="1"
-              value={assetQuantity}
-              onChange={(event) => setAssetQuantity(event.target.value)}
-              disabled={authUser.role !== 'admin'}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Buy price"
-              min="1"
-              value={assetBuyPrice}
-              onChange={(event) => setAssetBuyPrice(event.target.value)}
-              disabled={authUser.role !== 'admin'}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Current price"
-              min="1"
-              value={assetCurrentPrice}
-              onChange={(event) => setAssetCurrentPrice(event.target.value)}
-              disabled={authUser.role !== 'admin'}
-              required
-            />
-            <button type="submit" disabled={authUser.role !== 'admin'}>
-              Add Asset
-            </button>
+            <input type="text" placeholder="Asset symbol" value={assetSymbol} onChange={(event) => setAssetSymbol(event.target.value)} disabled={authUser.role !== 'admin'} required />
+            <input type="text" placeholder="Asset type" value={assetType} onChange={(event) => setAssetType(event.target.value)} disabled={authUser.role !== 'admin'} required />
+            <input type="number" placeholder="Quantity" min="1" value={assetQuantity} onChange={(event) => setAssetQuantity(event.target.value)} disabled={authUser.role !== 'admin'} required />
+            <input type="number" placeholder="Buy price" min="1" value={assetBuyPrice} onChange={(event) => setAssetBuyPrice(event.target.value)} disabled={authUser.role !== 'admin'} required />
+            <input type="number" placeholder="Current price" min="1" value={assetCurrentPrice} onChange={(event) => setAssetCurrentPrice(event.target.value)} disabled={authUser.role !== 'admin'} required />
+            <button type="submit" disabled={authUser.role !== 'admin'}>Add Asset</button>
           </form>
           {portfolioError && <p className="error">{portfolioError}</p>}
         </section>
@@ -1238,28 +618,18 @@ function App() {
   }
 
   const renderPerformance = () => {
-    const allValues = selectedPerformance.flatMap((point) => [
-      point.portfolio,
-      point.sensex,
-      point.nifty50,
-    ])
+    const allValues = selectedPerformance.flatMap((point) => [point.portfolio, point.sensex, point.nifty50])
     const minValue = Math.min(...allValues)
     const maxValue = Math.max(...allValues)
-
     const portfolioReturn = getSeriesReturn(selectedPerformance, 'portfolio')
     const sensexReturn = getSeriesReturn(selectedPerformance, 'sensex')
     const niftyReturn = getSeriesReturn(selectedPerformance, 'nifty50')
-
     const monthlyAlphaVsNifty = selectedPerformance.slice(1).map((point, index) => {
       const prev = selectedPerformance[index]
       const portfolioMonthly = ((point.portfolio - prev.portfolio) / prev.portfolio) * 100
       const niftyMonthly = ((point.nifty50 - prev.nifty50) / prev.nifty50) * 100
-      return {
-        month: point.month,
-        alpha: portfolioMonthly - niftyMonthly,
-      }
+      return { month: point.month, alpha: portfolioMonthly - niftyMonthly }
     })
-
     const maxAlpha = Math.max(...monthlyAlphaVsNifty.map((entry) => Math.abs(entry.alpha)), 1)
 
     return (
@@ -1268,31 +638,14 @@ function App() {
           <p className="section-kicker">Benchmark Lab</p>
           <h2>Performance Analytics: {selectedCustomer.name}</h2>
           <p>Compare portfolio growth against Sensex and Nifty 50 using beginner-friendly visuals.</p>
-          <p className="muted-text">
-            <span className="data-badge mock">Data: Mock</span>
-            Live market API can replace this data model without changing the UI structure.
-          </p>
+          <p className="muted-text"><span className="data-badge mock">Data: Mock</span>Live market API can replace this data model without changing the UI structure.</p>
         </section>
 
         <section className="summary-grid">
-          <article className="summary-card">
-            <h3>Portfolio Return (6M)</h3>
-            <p>{formatPercent(portfolioReturn)}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Sensex Return (6M)</h3>
-            <p>{formatPercent(sensexReturn)}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Nifty 50 Return (6M)</h3>
-            <p>{formatPercent(niftyReturn)}</p>
-          </article>
-          <article className="summary-card">
-            <h3>Alpha vs Nifty 50</h3>
-            <p className={portfolioReturn - niftyReturn >= 0 ? 'value-up' : 'value-down'}>
-              {formatPercent(portfolioReturn - niftyReturn)}
-            </p>
-          </article>
+          <article className="summary-card"><h3>Portfolio Return (6M)</h3><p>{formatPercent(portfolioReturn)}</p></article>
+          <article className="summary-card"><h3>Sensex Return (6M)</h3><p>{formatPercent(sensexReturn)}</p></article>
+          <article className="summary-card"><h3>Nifty 50 Return (6M)</h3><p>{formatPercent(niftyReturn)}</p></article>
+          <article className="summary-card"><h3>Alpha vs Nifty 50</h3><p className={portfolioReturn - niftyReturn >= 0 ? 'value-up' : 'value-down'}>{formatPercent(portfolioReturn - niftyReturn)}</p></article>
         </section>
 
         <section className="card">
@@ -1300,37 +653,18 @@ function App() {
           <h2>Comparison Line Chart</h2>
           <div className="chart-wrap" aria-label="Comparison chart for portfolio, Sensex and Nifty 50">
             <svg viewBox="0 0 680 250" className="line-chart" role="img">
-              <polyline
-                points={getLinePoints(selectedPerformance, 'sensex', minValue, maxValue)}
-                className="line sensex-line"
-              />
-              <polyline
-                points={getLinePoints(selectedPerformance, 'nifty50', minValue, maxValue)}
-                className="line nifty-line"
-              />
-              <polyline
-                points={getLinePoints(selectedPerformance, 'portfolio', minValue, maxValue)}
-                className="line portfolio-line"
-              />
+              <polyline points={getLinePoints(selectedPerformance, 'sensex', minValue, maxValue)} className="line sensex-line" />
+              <polyline points={getLinePoints(selectedPerformance, 'nifty50', minValue, maxValue)} className="line nifty-line" />
+              <polyline points={getLinePoints(selectedPerformance, 'portfolio', minValue, maxValue)} className="line portfolio-line" />
             </svg>
           </div>
-
           <div className="chart-legend">
-            <span>
-              <i className="legend-dot portfolio-dot" /> Portfolio
-            </span>
-            <span>
-              <i className="legend-dot sensex-dot" /> Sensex
-            </span>
-            <span>
-              <i className="legend-dot nifty-dot" /> Nifty 50
-            </span>
+            <span><i className="legend-dot portfolio-dot" /> Portfolio</span>
+            <span><i className="legend-dot sensex-dot" /> Sensex</span>
+            <span><i className="legend-dot nifty-dot" /> Nifty 50</span>
           </div>
-
           <div className="month-row">
-            {selectedPerformance.map((point) => (
-              <span key={point.month}>{point.month}</span>
-            ))}
+            {selectedPerformance.map((point) => (<span key={point.month}>{point.month}</span>))}
           </div>
         </section>
 
@@ -1342,16 +676,9 @@ function App() {
               const height = (Math.abs(entry.alpha) / maxAlpha) * 100
               return (
                 <article key={entry.month} className="bar-item">
-                  <div className="bar-track">
-                    <div
-                      className={`bar-fill ${entry.alpha >= 0 ? 'bar-up' : 'bar-down'}`}
-                      style={{ height: `${Math.max(height, 6)}%` }}
-                    />
-                  </div>
+                  <div className="bar-track"><div className={`bar-fill ${entry.alpha >= 0 ? 'bar-up' : 'bar-down'}`} style={{ height: `${Math.max(height, 6)}%` }} /></div>
                   <strong>{entry.month}</strong>
-                  <span className={entry.alpha >= 0 ? 'value-up' : 'value-down'}>
-                    {formatPercent(entry.alpha)}
-                  </span>
+                  <span className={entry.alpha >= 0 ? 'value-up' : 'value-down'}>{formatPercent(entry.alpha)}</span>
                 </article>
               )
             })}
@@ -1362,18 +689,9 @@ function App() {
   }
 
   const renderContent = () => {
-    if (activeView === 'Dashboard') {
-      return renderDashboard()
-    }
-
-    if (activeView === 'Customers') {
-      return renderCustomers()
-    }
-
-    if (activeView === 'Portfolio') {
-      return renderPortfolio()
-    }
-
+    if (activeView === 'Dashboard') return renderDashboard()
+    if (activeView === 'Customers') return renderCustomers()
+    if (activeView === 'Portfolio') return renderPortfolio()
     return renderPerformance()
   }
 
@@ -1382,85 +700,37 @@ function App() {
       <section className="login-hero">
         <p className="eyebrow">Financial Portfolio Manager</p>
         <h1>Build confidence in every investment decision</h1>
-        <p>
-          Designed for beginners and professionals alike. Track portfolios, compare against market
-          benchmarks, and make actions with clarity.
-        </p>
-
+        <p>Designed for beginners and professionals alike. Track portfolios, compare against market benchmarks, and make actions with clarity.</p>
         <div className="hero-points">
-          <article>
-            <strong>Smart visual analytics</strong>
-            <span>Line charts, pie allocation, and benchmark comparisons.</span>
-          </article>
-          <article>
-            <strong>Role based clarity</strong>
-            <span>Fund manager controls all portfolios, customers view their own.</span>
-          </article>
-          <article>
-            <strong>Beginner friendly flow</strong>
-            <span>Simple language and guided sections across every page.</span>
-          </article>
+          <article><strong>Smart visual analytics</strong><span>Line charts, pie allocation, and benchmark comparisons.</span></article>
+          <article><strong>Role based clarity</strong><span>Fund manager controls all portfolios, customers view their own.</span></article>
+          <article><strong>Beginner friendly flow</strong><span>Simple language and guided sections across every page.</span></article>
         </div>
-
         <div className="login-metrics">
-          <article>
-            <span>Assets Under View</span>
-            <strong>₹4.8M</strong>
-          </article>
-          <article>
-            <span>Active Customers</span>
-            <strong>3</strong>
-          </article>
-          <article>
-            <span>Benchmarks</span>
-            <strong>Sensex + Nifty 50</strong>
-          </article>
+          <article><span>Assets Under View</span><strong>₹4.8M</strong></article>
+          <article><span>Active Customers</span><strong>3</strong></article>
+          <article><span>Benchmarks</span><strong>Sensex + Nifty 50</strong></article>
         </div>
       </section>
 
-<<<<<<< HEAD
       <section className="login-panel">
         <h2>Sign in</h2>
         <p>Use demo credentials to enter as admin or one of the 3 customers.</p>
-
         <form onSubmit={handleLogin} className="form login-form">
-          <input
-            type="text"
-            placeholder="Username"
-            value={loginUsername}
-            onChange={(event) => setLoginUsername(event.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={loginPassword}
-            onChange={(event) => setLoginPassword(event.target.value)}
-            required
-          />
+          <input type="text" placeholder="Username" value={loginUsername} onChange={(event) => setLoginUsername(event.target.value)} required />
+          <input type="password" placeholder="Password" value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} required />
           <button type="submit">Login</button>
         </form>
-
         {loginError && <p className="error">{loginError}</p>}
-
         <div className="login-shortcuts">
           <p>Quick fill:</p>
           <div className="shortcut-grid">
-            <button type="button" onClick={() => fillLogin('manager', 'manager123')}>
-              Fund Manager
-            </button>
-            <button type="button" onClick={() => fillLogin('john', 'john123')}>
-              John
-            </button>
-            <button type="button" onClick={() => fillLogin('mira', 'mira123')}>
-              Mira
-            </button>
-            <button type="button" onClick={() => fillLogin('sarthak', 'sarthak123')}>
-              Sarthak
-            </button>
+            <button type="button" onClick={() => fillLogin('manager', 'manager123')}>Fund Manager</button>
+            <button type="button" onClick={() => fillLogin('john', 'john123')}>John</button>
+            <button type="button" onClick={() => fillLogin('mira', 'mira123')}>Mira</button>
+            <button type="button" onClick={() => fillLogin('sarthak', 'sarthak123')}>Sarthak</button>
           </div>
         </div>
-
         <ul className="credentials-list">
           <li>Admin: manager / manager123</li>
           <li>Customer: john / john123</li>
@@ -1480,154 +750,19 @@ function App() {
       <header className="page-header top-header">
         <div>
           <h1>Financial Portfolio Manager</h1>
-          <p className="status">
-            Signed in as {authUser.displayName} ({authUser.role === 'admin' ? 'Fund Manager' : 'Customer'})
-          </p>
+          <p className="status">Signed in as {authUser.displayName} ({authUser.role === 'admin' ? 'Fund Manager' : 'Customer'})</p>
         </div>
-        <button type="button" className="logout-btn" onClick={logout}>
-          Logout
-        </button>
+        <button type="button" className="logout-btn" onClick={logout}>Logout</button>
       </header>
-
       <nav className="nav" aria-label="Primary">
         {visibleViews.map((view) => (
-          <button
-            key={view}
-            type="button"
-            className={`nav-link ${activeView === view ? 'active' : ''}`}
-            onClick={() => setActiveView(view)}
-          >
-            {view}
-          </button>
+          <button key={view} type="button" className={`nav-link ${activeView === view ? 'active' : ''}`} onClick={() => setActiveView(view)}>{view}</button>
         ))}
       </nav>
-
       <section className="context-bar" aria-live="polite">
-        <p>
-          Current customer: <strong>{selectedCustomer.name}</strong> | Risk:{' '}
-          <strong>{selectedCustomer.riskProfile}</strong>
-        </p>
+        <p>Current customer: <strong>{selectedCustomer.name}</strong> | Risk: <strong>{selectedCustomer.riskProfile}</strong></p>
       </section>
-
       {renderContent()}
-=======
-      {isManagerRole && (
-        <>
-          <section className="card">
-            <h2>Create Customer</h2>
-            <form className="form" onSubmit={createCustomer}>
-              {authContext.role === 'ADMIN' && (
-                <input
-                  type="number"
-                  placeholder="Fund Manager ID"
-                  value={newCustomer.fundManagerId}
-                  onChange={(event) => setNewCustomer((prev) => ({ ...prev, fundManagerId: event.target.value }))}
-                  required
-                />
-              )}
-              <input
-                type="text"
-                placeholder="Customer Name"
-                value={newCustomer.name}
-                onChange={(event) => setNewCustomer((prev) => ({ ...prev, name: event.target.value }))}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Customer Email"
-                value={newCustomer.email}
-                onChange={(event) => setNewCustomer((prev) => ({ ...prev, email: event.target.value }))}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone"
-                value={newCustomer.phone}
-                onChange={(event) => setNewCustomer((prev) => ({ ...prev, phone: event.target.value }))}
-              />
-              <button type="submit">Create Customer</button>
-            </form>
-          </section>
-
-          <section className="card">
-            <h2>Customers</h2>
-            {customers.length === 0 ? <p>No customers found.</p> : (
-              <>
-                <label htmlFor="customerSelect">Select customer to view portfolios</label>
-                <select
-                  id="customerSelect"
-                  value={selectedCustomerId}
-                  onChange={(event) => {
-                    setSelectedCustomerId(event.target.value)
-                    setNewPortfolio((prev) => ({ ...prev, customerId: event.target.value }))
-                  }}
-                >
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      #{customer.id} - {customer.name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
-          </section>
-
-          <section className="card">
-            <h2>Create Portfolio</h2>
-            <form className="form" onSubmit={createPortfolio}>
-              <input
-                type="number"
-                placeholder="Customer ID"
-                value={newPortfolio.customerId}
-                onChange={(event) => setNewPortfolio((prev) => ({ ...prev, customerId: event.target.value }))}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Portfolio name"
-                value={newPortfolio.portfolioName}
-                onChange={(event) => setNewPortfolio((prev) => ({ ...prev, portfolioName: event.target.value }))}
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Total investment"
-                value={newPortfolio.totalInvestment}
-                onChange={(event) => setNewPortfolio((prev) => ({ ...prev, totalInvestment: event.target.value }))}
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Current value"
-                value={newPortfolio.currentValue}
-                onChange={(event) => setNewPortfolio((prev) => ({ ...prev, currentValue: event.target.value }))}
-                required
-              />
-              <button type="submit">Create Portfolio</button>
-            </form>
-          </section>
-        </>
-      )}
-
-      <section className="card">
-        <h2>Portfolios {authContext.role === 'CUSTOMER' ? '(View Only)' : ''}</h2>
-        {portfolios.length === 0 ? (
-          <p>No portfolios available.</p>
-        ) : (
-          <ul>
-            {portfolios.map((portfolio) => (
-              <li key={portfolio.id}>
-                #{portfolio.id} - {portfolio.portfolioName} | Investment: {portfolio.totalInvestment} | Current: {portfolio.currentValue}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {appError && <p className="error">{appError}</p>}
->>>>>>> aef10fe40cf81fb96c0762eaf64edcd965d8ce33
     </main>
   )
 }
