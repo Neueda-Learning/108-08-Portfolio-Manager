@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
+import ThemeToggle from "../components/common/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
 import { authService } from "../services/authService";
 
@@ -33,6 +34,7 @@ function LoginPage() {
 
   return (
     <div className="login-screen">
+      <ThemeToggle compact className="login-theme-toggle" />
       <Card className="login-card">
         <div className="brand login-brand">PortfolioM</div>
         <p className="subtitle">Sign in to view your portfolio</p>

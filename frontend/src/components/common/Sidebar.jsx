@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import ThemeToggle from "./ThemeToggle";
 
 function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
   const { username, managerUsername, logout } = useAuth();
@@ -36,6 +37,7 @@ function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
         </nav>
 
         <div className="sidebar-footer">
+          <ThemeToggle />
           {managerUsername && !collapsed && (
             <p className="meta-line sidebar-message" title={`Managed by ${managerUsername}`}>
               Fund Manager: {managerUsername}

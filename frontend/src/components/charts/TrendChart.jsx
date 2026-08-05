@@ -8,6 +8,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
+import { useTheme } from "../../context/ThemeContext";
 import { Line } from "react-chartjs-2";
 import Card from "../common/Card";
 import { formatMoney } from "../../utils/formatters";
@@ -23,14 +24,20 @@ function formatLabel(timestampSeconds, range) {
 }
 
 function TrendChart({ points, range }) {
+  const { isDark } = useTheme();
+  const chartText = isDark ? "#c7d0df" : "#898781";
+  const chartGrid = isDark ? "#2a3342" : "#e7e6e1";
+  const chartBorder = isDark ? "#6ea8ff" : "#2a78d6";
+  const chartFill = isDark ? "rgba(110, 168, 255, 0.16)" : "rgba(42, 120, 214, 0.08)";
+
   const data = {
     labels: points.map((point) => formatLabel(point.timestamp, range)),
     datasets: [
       {
         label: "Portfolio Value",
         data: points.map((point) => Number(point.value)),
-        borderColor: "#2a78d6",
-        backgroundColor: "rgba(42, 120, 214, 0.08)",
+        borderColor: chartBorder,
+        backgroundColor: chartFill,
         borderWidth: 2,
         fill: true,
         tension: 0.3,
@@ -53,11 +60,11 @@ function TrendChart({ points, range }) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: "#898781", font: { size: 11 } },
+        ticks: { color: chartText, font: { size: 11 } },
       },
       y: {
-        grid: { color: "#e7e6e1" },
-        ticks: { color: "#898781", font: { size: 11 }, callback: (value) => formatMoney(value) },
+        grid: { color: chartGrid },
+        ticks: { color: chartText, font: { size: 11 }, callback: (value) => formatMoney(value) },
       },
     },
   };

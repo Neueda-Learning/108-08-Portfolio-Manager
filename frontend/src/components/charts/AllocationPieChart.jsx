@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { useTheme } from "../../context/ThemeContext";
 import Card from "../common/Card";
 import { formatMoney } from "../../utils/formatters";
 
@@ -10,6 +11,9 @@ const COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"
 
 function AllocationPieChart({ holdings }) {
   const [mode, setMode] = useState("value");
+  const { isDark } = useTheme();
+  const legendColor = isDark ? "#c7d0df" : "#52514e";
+  const borderColor = isDark ? "#111827" : "#ffffff";
 
   const data = useMemo(() => {
     const labels = holdings.map((holding) => holding.ticker);
@@ -22,7 +26,7 @@ function AllocationPieChart({ holdings }) {
         {
           data: values,
           backgroundColor: labels.map((_, index) => COLORS[index % COLORS.length]),
-          borderColor: "#ffffff",
+          borderColor,
           borderWidth: 2,
         },
       ],
@@ -34,7 +38,7 @@ function AllocationPieChart({ holdings }) {
     plugins: {
       legend: {
         position: "right",
-        labels: { color: "#52514e", font: { size: 11 }, boxWidth: 10, padding: 10 },
+        labels: { color: legendColor, font: { size: 11 }, boxWidth: 10, padding: 10 },
       },
       tooltip: {
         callbacks: {

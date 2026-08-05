@@ -1,3 +1,4 @@
+import { useTheme } from "../../context/ThemeContext";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 import Card from "../common/Card";
@@ -6,9 +7,16 @@ import { formatMoney } from "../../utils/formatters";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 function PerformanceCharts({ holdings }) {
+  const { isDark } = useTheme();
   if (!holdings || holdings.length === 0) {
     return null;
   }
+
+  const legendColor = isDark ? "#c7d0df" : "#52514e";
+  const chartText = isDark ? "#c7d0df" : "#898781";
+  const chartGrid = isDark ? "#2a3342" : "#e7e6e1";
+  const investedBar = isDark ? "#5c6477" : "#d6d4cd";
+  const valueBar = isDark ? "#6ea8ff" : "#2a78d6";
 
   const data = {
     labels: holdings.map((holding) => holding.ticker),
@@ -16,14 +24,14 @@ function PerformanceCharts({ holdings }) {
       {
         label: "Amount Invested",
         data: holdings.map((holding) => Number(holding.costBasis || 0)),
-        backgroundColor: "#d6d4cd",
+        backgroundColor: investedBar,
         borderRadius: 4,
         maxBarThickness: 28,
       },
       {
         label: "Current Value",
         data: holdings.map((holding) => Number(holding.currentValue || 0)),
-        backgroundColor: "#2a78d6",
+        backgroundColor: valueBar,
         borderRadius: 4,
         maxBarThickness: 28,
       },
@@ -34,7 +42,7 @@ function PerformanceCharts({ holdings }) {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        labels: { color: "#52514e", font: { size: 12 } },
+        labels: { color: legendColor, font: { size: 12 } },
       },
       tooltip: {
         callbacks: {
@@ -45,11 +53,11 @@ function PerformanceCharts({ holdings }) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: "#898781", font: { size: 11 } },
+        ticks: { color: chartText, font: { size: 11 } },
       },
       y: {
-        grid: { color: "#e7e6e1" },
-        ticks: { color: "#898781", font: { size: 11 }, callback: (value) => formatMoney(value) },
+        grid: { color: chartGrid },
+        ticks: { color: chartText, font: { size: 11 }, callback: (value) => formatMoney(value) },
       },
     },
   };
