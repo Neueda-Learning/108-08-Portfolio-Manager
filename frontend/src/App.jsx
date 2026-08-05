@@ -13,7 +13,7 @@ import ManagerCustomerDashboardPage from "./pages/ManagerCustomerDashboardPage";
 import ManagerCustomerHoldingsPage from "./pages/ManagerCustomerHoldingsPage";
 import { useAuth } from "./context/AuthContext";
 
-const SIDEBAR_STORAGE_KEY = "portiq_sidebar_collapsed";
+const SIDEBAR_STORAGE_KEY = "portfoliom_sidebar_collapsed";
 
 function App() {
   const { isAuthenticated, isFundManager } = useAuth();

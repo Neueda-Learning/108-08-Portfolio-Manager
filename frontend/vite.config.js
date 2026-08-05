@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icon.svg"],
       manifest: {
-        name: "Portiq",
-        short_name: "Portiq",
+        name: "PortfolioM",
+        short_name: "PortfolioM",
         description: "Track your investment portfolio, holdings, and market value",
         start_url: "/",
         display: "standalone",

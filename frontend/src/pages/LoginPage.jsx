@@ -34,7 +34,7 @@ function LoginPage() {
   return (
     <div className="login-screen">
       <Card className="login-card">
-        <div className="brand login-brand">Portiq</div>
+        <div className="brand login-brand">PortfolioM</div>
         <p className="subtitle">Sign in to view your portfolio</p>
 
         <form onSubmit={handlePasswordLogin}>

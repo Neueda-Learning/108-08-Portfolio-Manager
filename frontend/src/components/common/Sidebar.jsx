@@ -15,7 +15,7 @@ function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
       {mobileOpen && <div className="sidebar-backdrop" onClick={onCloseMobile} />}
       <aside className={`sidebar ${collapsed ? "collapsed" : ""} ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-header">
-          <div className="brand">{collapsed ? "P" : "Portiq"}</div>
+          <div className="brand">{collapsed ? "P" : "PortfolioM"}</div>
           <button className="sidebar-toggle" onClick={onToggleCollapse} title="Collapse sidebar" aria-label="Collapse sidebar">
             {collapsed ? "»" : "«"}
           </button>

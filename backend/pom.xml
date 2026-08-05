@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.portiq</groupId>
-    <artifactId>portiq</artifactId>
+    <groupId>com.portfoliom</groupId>
+    <artifactId>portfoliom</artifactId>
     <version>1.0.0</version>
-    <name>portiq</name>
+    <name>portfoliom</name>
     <description>Portfolio Management System</description>
 
     <properties>

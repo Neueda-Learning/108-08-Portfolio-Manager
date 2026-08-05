@@ -120,7 +120,7 @@ ALTER TABLE app_users
 -- 3. Backfill a reasonable default name/email for any existing accounts (adjust as you like)
 UPDATE app_users
   SET name = COALESCE(name, username),
-      email = COALESCE(email, CONCAT(username, '@portiq.local'))
+      email = COALESCE(email, CONCAT(username, '@PortfolioM.local'))
   WHERE name IS NULL OR email IS NULL;
 
 -- 4. Add the self-referencing FK for managed_by_id (fund manager who created the account)

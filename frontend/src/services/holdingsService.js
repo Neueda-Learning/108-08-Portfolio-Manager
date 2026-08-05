@@ -107,6 +107,6 @@ export const holdingsService = {
   },
 
   downloadSampleCsv: () => downloadFile(`${API_BASE_URL}${API_ENDPOINTS.sampleCsv}`, "sample-holdings.csv"),
-  exportCsv: () => downloadFile(`${API_BASE_URL}${API_ENDPOINTS.exportCsv}`, "portiq-holdings.csv"),
-  exportPdf: () => downloadFile(`${API_BASE_URL}${API_ENDPOINTS.exportPdf}`, "portiq-holdings.pdf"),
+  exportCsv: () => downloadFile(`${API_BASE_URL}${API_ENDPOINTS.exportCsv}`, "portfoliom-holdings.csv"),
+  exportPdf: () => downloadFile(`${API_BASE_URL}${API_ENDPOINTS.exportPdf}`, "portfoliom-holdings.pdf"),
 };

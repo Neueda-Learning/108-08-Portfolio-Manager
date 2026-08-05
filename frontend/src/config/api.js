@@ -1,6 +1,6 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4001";
 
-export const TOKEN_STORAGE_KEY = "portiq_token";
+export const TOKEN_STORAGE_KEY = "portfoliom_token";
 
 export const API_ENDPOINTS = {
   portfolios: "/api/portfolios",

@@ -4,7 +4,7 @@ function MobileHeader({ onOpenSidebar }) {
       <button className="hamburger" onClick={onOpenSidebar} aria-label="Open menu">
         &#9776;
       </button>
-      <div className="brand">Portiq</div>
+      <div className="brand">PortfolioM</div>
     </header>
   );
 }
