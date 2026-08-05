@@ -1,74 +1,57 @@
-package com.example.model;
+package com.portiq.model;
 
-import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.portiq.security.EncryptedStringConverter;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "portfolios")
 public class Portfolio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long customerId;
-    private String portfolioName;
-    private BigDecimal totalInvestment;
-    private BigDecimal currentValue;
+
+    @NotBlank(message = "Name is required")
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String name;
+
+    @Convert(converter = EncryptedStringConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public Portfolio() {
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Holding> holdings = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 
-    public Portfolio(Long id, Long customerId, String portfolioName, BigDecimal totalInvestment, BigDecimal currentValue,
-                     LocalDateTime createdAt) {
-        this.id = id;
-        this.customerId = customerId;
-        this.portfolioName = portfolioName;
-        this.totalInvestment = totalInvestment;
-        this.currentValue = currentValue;
-        this.createdAt = createdAt;
+    public Portfolio() {}
+
+    public Portfolio(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public String getPortfolioName() {
-        return portfolioName;
-    }
-
-    public void setPortfolioName(String portfolioName) {
-        this.portfolioName = portfolioName;
-    }
-
-    public BigDecimal getTotalInvestment() {
-        return totalInvestment;
-    }
-
-    public void setTotalInvestment(BigDecimal totalInvestment) {
-        this.totalInvestment = totalInvestment;
-    }
-
-    public BigDecimal getCurrentValue() {
-        return currentValue;
-    }
-
-    public void setCurrentValue(BigDecimal currentValue) {
-        this.currentValue = currentValue;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public List<Holding> getHoldings() { return holdings; }
+    public void setHoldings(List<Holding> holdings) { this.holdings = holdings; }
 }
