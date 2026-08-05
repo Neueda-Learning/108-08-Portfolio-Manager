@@ -1,13 +1,12 @@
-package com.example;
+package com.portiq;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringbootJdbc01Application {
+public class PortiqApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringbootJdbc01Application.class, args);
+		SpringApplication.run(PortiqApplication.class, args);
 	}
-
 }
