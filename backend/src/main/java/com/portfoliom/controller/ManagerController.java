@@ -80,8 +80,8 @@ public class ManagerController {
 
     @GetMapping("/customers/{id}/holdings")
     @Operation(summary = "Get a customer's aggregate holdings performance")
-    public PerformanceSummary getCustomerHoldings(@PathVariable Long id) {
-        return customerService.getCustomerHoldings(id);
+    public PerformanceSummary getCustomerHoldings(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean refresh) {
+        return customerService.getCustomerHoldings(id, refresh);
     }
 
     @PostMapping("/customers/{id}/holdings")

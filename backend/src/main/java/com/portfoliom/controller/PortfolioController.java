@@ -67,7 +67,10 @@ public class PortfolioController {
 
     @GetMapping("/{id}/performance")
     @Operation(summary = "Get portfolio performance summary")
-    public PerformanceSummary getPerformance(@PathVariable Long id, Authentication authentication) {
-        return holdingService.getPerformance(id, userService.getCurrentUserId(authentication));
+    public PerformanceSummary getPerformance(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean refresh,
+            Authentication authentication) {
+        return holdingService.getPerformance(id, userService.getCurrentUserId(authentication), refresh);
     }
 }

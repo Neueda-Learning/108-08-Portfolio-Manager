@@ -12,7 +12,7 @@ import { newsService } from "../services/newsService";
 import { insightsService } from "../services/insightsService";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
-import { formatMoney, formatPercent, formatSignedMoney } from "../utils/formatters";
+import { formatMoney, formatPercent, formatSignedMoney, formatTime } from "../utils/formatters";
 
 const RANGES = [
   { key: "1d", label: "1D" },
@@ -32,9 +32,10 @@ function DashboardPage() {
   const [summaryError, setSummaryError] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadPerformance = useCallback(async () => {
-    const data = await holdingsService.getAll();
+  const loadPerformance = useCallback(async (force = false) => {
+    const data = await holdingsService.getAll({ force });
     setPerformance(data);
   }, []);
 
@@ -70,6 +71,19 @@ function DashboardPage() {
       setSummaryError(error.message);
     } finally {
       setSummaryLoading(false);
+    }
+  }
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      await loadPerformance(true);
+      await loadHistory(range);
+      toast.success("Live prices refreshed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRefreshing(false);
     }
   }
 
@@ -144,10 +158,18 @@ function DashboardPage() {
           <p className="subtitle">
             {name ? `${name} (${email}) · ` : ""}Live overview of your holdings and market value
           </p>
+          {performance?.pricesAsOf && (
+            <p className="meta-line">Prices updated {formatTime(performance.pricesAsOf)}</p>
+          )}
         </div>
-        <Button onClick={handleSummary} loading={summaryLoading}>
-          Summary
-        </Button>
+        <div className="actions">
+          <Button variant="ghost" onClick={handleRefresh} loading={refreshing}>
+            Refresh Prices
+          </Button>
+          <Button onClick={handleSummary} loading={summaryLoading}>
+            Summary
+          </Button>
+        </div>
       </section>
 
       {(summary || summaryError) && (

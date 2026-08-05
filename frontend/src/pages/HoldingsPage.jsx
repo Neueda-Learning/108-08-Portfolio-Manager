@@ -8,7 +8,7 @@ import Skeleton from "../components/common/Skeleton";
 import HoldingForm from "../components/holdings/HoldingForm";
 import { holdingsService } from "../services/holdingsService";
 import { useToast } from "../context/ToastContext";
-import { formatMoney, formatPercent, formatSignedMoney } from "../utils/formatters";
+import { formatMoney, formatPercent, formatSignedMoney, formatTime } from "../utils/formatters";
 
 const EMPTY_FORM = {
   ticker: "",
@@ -33,12 +33,13 @@ function HoldingsPage() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   const csvInputRef = useRef(null);
   const imageInputRef = useRef(null);
 
-  async function loadHoldings() {
-    const data = await holdingsService.getAll();
+  async function loadHoldings(force = false) {
+    const data = await holdingsService.getAll({ force });
     setPerformance(data);
   }
 
@@ -48,6 +49,18 @@ function HoldingsPage() {
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      await loadHoldings(true);
+      toast.success("Live prices refreshed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   function openAddModal() {
     setEditingHolding(null);
@@ -258,8 +271,14 @@ function HoldingsPage() {
         <div>
           <h1>Holdings Report</h1>
           <p className="subtitle">All holdings, purchase and current value, and profit and loss</p>
+          {performance?.pricesAsOf && (
+            <p className="meta-line">Prices updated {formatTime(performance.pricesAsOf)}</p>
+          )}
         </div>
         <div className="actions">
+          <Button variant="ghost" onClick={handleRefresh} loading={refreshing}>
+            Refresh Prices
+          </Button>
           <Button variant="ghost" onClick={() => handleExport("csv")} loading={exporting === "csv"}>
             Export CSV
           </Button>

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,18 +122,32 @@ public class HoldingService {
 
     @Transactional(readOnly = true)
     public PerformanceSummary getAggregatePerformance(Long ownerId) {
+        return getAggregatePerformance(ownerId, false);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceSummary getAggregatePerformance(Long ownerId, boolean refresh) {
         List<Holding> holdings = holdingRepository.findByPortfolio_Owner_Id(ownerId);
-        return summarize(null, "All Holdings", holdings);
+        return summarize(null, "All Holdings", holdings, refresh);
     }
 
     @Transactional(readOnly = true)
     public PerformanceSummary getPerformance(Long portfolioId, Long ownerId) {
-        Portfolio portfolio = portfolioService.getById(portfolioId, ownerId);
-        List<Holding> holdings = holdingRepository.findByPortfolioId(portfolioId);
-        return summarize(portfolioId, portfolio.getName(), holdings);
+        return getPerformance(portfolioId, ownerId, false);
     }
 
-    private PerformanceSummary summarize(Long portfolioId, String portfolioName, List<Holding> holdings) {
+    @Transactional(readOnly = true)
+    public PerformanceSummary getPerformance(Long portfolioId, Long ownerId, boolean refresh) {
+        Portfolio portfolio = portfolioService.getById(portfolioId, ownerId);
+        List<Holding> holdings = holdingRepository.findByPortfolioId(portfolioId);
+        return summarize(portfolioId, portfolio.getName(), holdings, refresh);
+    }
+
+    private PerformanceSummary summarize(Long portfolioId, String portfolioName, List<Holding> holdings, boolean refresh) {
+        if (refresh) {
+            holdings.forEach(h -> priceService.invalidate(h.getTicker()));
+        }
+
         List<HoldingPerformance> performances = holdings.stream()
                 .map(this::toHoldingPerformance)
                 .collect(Collectors.toList());
@@ -161,6 +176,7 @@ public class HoldingService {
         summary.setTotalGainLoss(gainLoss.setScale(2, RoundingMode.HALF_UP));
         summary.setGainLossPercent(gainLossPercent);
         summary.setHoldings(performances);
+        summary.setPricesAsOf(Instant.now());
         return summary;
     }
 

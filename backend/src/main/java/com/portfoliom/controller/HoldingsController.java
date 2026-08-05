@@ -62,8 +62,10 @@ public class HoldingsController {
 
     @GetMapping
     @Operation(summary = "Get performance for every holding across all portfolios")
-    public PerformanceSummary getAllHoldings(Authentication authentication) {
-        return holdingService.getAggregatePerformance(userService.getCurrentUserId(authentication));
+    public PerformanceSummary getAllHoldings(
+            @RequestParam(defaultValue = "false") boolean refresh,
+            Authentication authentication) {
+        return holdingService.getAggregatePerformance(userService.getCurrentUserId(authentication), refresh);
     }
 
     @PostMapping

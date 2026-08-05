@@ -53,8 +53,13 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public PerformanceSummary getCustomerHoldings(Long customerId) {
+        return getCustomerHoldings(customerId, false);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceSummary getCustomerHoldings(Long customerId, boolean refresh) {
         userService.getCustomerById(customerId);
-        return holdingService.getAggregatePerformance(customerId);
+        return holdingService.getAggregatePerformance(customerId, refresh);
     }
 
     private CustomerSummary toSummary(User user) {
