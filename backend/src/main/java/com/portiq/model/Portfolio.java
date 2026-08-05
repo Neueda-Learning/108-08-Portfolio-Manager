@@ -28,6 +28,11 @@ public class Portfolio {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User owner;
+
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Holding> holdings = new ArrayList<>();
@@ -44,6 +49,12 @@ public class Portfolio {
         this.description = description;
     }
 
+    public Portfolio(String name, String description, User owner) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -54,4 +65,6 @@ public class Portfolio {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public List<Holding> getHoldings() { return holdings; }
     public void setHoldings(List<Holding> holdings) { this.holdings = holdings; }
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
 }

@@ -11,10 +11,6 @@ export const API_ENDPOINTS = {
 
   login: "/api/auth/login",
   me: "/api/auth/me",
-  webauthnRegistrationOptions: "/api/auth/webauthn/registration/options",
-  webauthnRegistrationVerify: "/api/auth/webauthn/registration/verify",
-  webauthnLoginOptions: "/api/auth/webauthn/login/options",
-  webauthnLoginVerify: "/api/auth/webauthn/login/verify",
 
   allHoldings: "/api/holdings",
   holdingByIdFlat: (id) => `/api/holdings/${id}`,
@@ -27,4 +23,11 @@ export const API_ENDPOINTS = {
 
   news: "/api/news",
   insightsSummary: "/api/insights/summary",
+
+  managerCustomers: "/api/manager/customers",
+  managerCustomerById: (id) => `/api/manager/customers/${id}`,
+  managerCustomerHoldings: (id) => `/api/manager/customers/${id}/holdings`,
+  managerCustomerHoldingById: (id, holdingId) => `/api/manager/customers/${id}/holdings/${holdingId}`,
+  managerCustomerHistory: (id, range) =>
+    `/api/manager/customers/${id}/holdings/history?range=${encodeURIComponent(range)}`,
 };

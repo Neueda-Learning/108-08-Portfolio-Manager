@@ -5,6 +5,7 @@ import com.portiq.dto.HoldingImportResult;
 import com.portiq.dto.HoldingRequest;
 import com.portiq.model.HoldingType;
 import com.portiq.model.Portfolio;
+import com.portiq.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +29,8 @@ public class HoldingImportService {
         this.holdingService = holdingService;
     }
 
-    public HoldingImportResult importCsv(MultipartFile file) throws IOException {
-        Portfolio portfolio = portfolioService.getOrCreateDefault();
+    public HoldingImportResult importCsv(MultipartFile file, User owner) throws IOException {
+        Portfolio portfolio = portfolioService.getOrCreateDefault(owner);
         List<String> errors = new ArrayList<>();
         int imported = 0;
 
@@ -47,7 +48,7 @@ public class HoldingImportService {
                 }
                 try {
                     HoldingRequest request = parseRow(row);
-                    holdingService.mergeOrCreate(portfolio, request);
+                    holdingService.mergeOrCreate(portfolio, request, owner.getId());
                     imported++;
                 } catch (Exception e) {
                     errors.add("Row " + (i + 1) + ": " + e.getMessage());
@@ -60,14 +61,14 @@ public class HoldingImportService {
         return new HoldingImportResult(imported, errors);
     }
 
-    public HoldingImportResult importRequests(List<HoldingRequest> requests) {
-        Portfolio portfolio = portfolioService.getOrCreateDefault();
+    public HoldingImportResult importRequests(List<HoldingRequest> requests, User owner) {
+        Portfolio portfolio = portfolioService.getOrCreateDefault(owner);
         List<String> errors = new ArrayList<>();
         int imported = 0;
 
         for (HoldingRequest request : requests) {
             try {
-                holdingService.mergeOrCreate(portfolio, request);
+                holdingService.mergeOrCreate(portfolio, request, owner.getId());
                 imported++;
             } catch (Exception e) {
                 errors.add(request.getTicker() + ": " + e.getMessage());

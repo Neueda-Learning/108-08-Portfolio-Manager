@@ -1,8 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
-  const { username, managerUsername, logout } = useAuth();
+function ManagerSidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
+  const { username, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -25,22 +25,13 @@ function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink to="/" end onClick={onCloseMobile} title="Dashboard">
+          <NavLink to="/manager" end onClick={onCloseMobile} title="Customers">
             <span className="nav-icon">&#9638;</span>
-            <span className="nav-label">Dashboard</span>
-          </NavLink>
-          <NavLink to="/holdings" onClick={onCloseMobile} title="Holdings">
-            <span className="nav-icon">&#9636;</span>
-            <span className="nav-label">Holdings</span>
+            <span className="nav-label">Customers</span>
           </NavLink>
         </nav>
 
         <div className="sidebar-footer">
-          {managerUsername && !collapsed && (
-            <p className="meta-line sidebar-message" title={`Managed by ${managerUsername}`}>
-              Fund Manager: {managerUsername}
-            </p>
-          )}
           <div className="sidebar-user" title={username || ""}>
             <span className="nav-label">{username}</span>
           </div>
@@ -54,4 +45,4 @@ function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onCloseMobile }) {
   );
 }
 
-export default Sidebar;
+export default ManagerSidebar;

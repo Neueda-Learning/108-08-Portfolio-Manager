@@ -3,6 +3,7 @@ package com.portiq.config;
 import com.portiq.model.Holding;
 import com.portiq.model.HoldingType;
 import com.portiq.model.Portfolio;
+import com.portiq.model.Role;
 import com.portiq.model.User;
 import com.portiq.repository.HoldingRepository;
 import com.portiq.repository.PortfolioRepository;
@@ -19,9 +20,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Seeds the single login account and, on a brand new database, a few sample holdings so the
- * app is usable immediately. Runs through JPA (not raw SQL) so encrypted columns are written
- * correctly.
+ * Seeds the login accounts and, on a brand new database, a few sample holdings so the app is
+ * usable immediately. Runs through JPA (not raw SQL) so encrypted columns are written correctly.
  */
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -39,6 +39,12 @@ public class DataSeeder implements CommandLineRunner {
     @Value("${app.owner.password:ChangeMe123!}")
     private String ownerPassword;
 
+    @Value("${app.manager.username:fundmanager}")
+    private String managerUsername;
+
+    @Value("${app.manager.password:FundManager123!}")
+    private String managerPassword;
+
     public DataSeeder(UserRepository userRepository, PortfolioRepository portfolioRepository,
                        HoldingRepository holdingRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -50,32 +56,50 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        seedOwnerAccount();
-        seedSampleHoldings();
+        User manager = seedFundManagerAccount();
+        User owner = seedOwnerAccount(manager);
+        seedSampleHoldings(owner);
     }
 
-    private void seedOwnerAccount() {
-        if (userRepository.count() == 0) {
-            User user = new User(ownerUsername, passwordEncoder.encode(ownerPassword));
-            userRepository.save(user);
-            log.info("Seeded login account '{}'. Change the password after first login.", ownerUsername);
-        }
+    private User seedOwnerAccount(User manager) {
+        return userRepository.findByUsername(ownerUsername)
+                .orElseGet(() -> {
+                    User user = new User(ownerUsername, passwordEncoder.encode(ownerPassword), Role.OWNER);
+                    user.setName("Default Owner");
+                    user.setEmail(ownerUsername + "@portiq.local");
+                    user.setManagedBy(manager);
+                    User saved = userRepository.save(user);
+                    log.info("Seeded login account '{}'. Change the password after first login.", ownerUsername);
+                    return saved;
+                });
     }
 
-    private void seedSampleHoldings() {
+    private User seedFundManagerAccount() {
+        return userRepository.findByUsername(managerUsername)
+                .orElseGet(() -> {
+                    User manager = new User(managerUsername, passwordEncoder.encode(managerPassword), Role.FUND_MANAGER);
+                    manager.setName("Fund Manager");
+                    manager.setEmail(managerUsername + "@portiq.local");
+                    User saved = userRepository.save(manager);
+                    log.info("Seeded fund manager account '{}'. Change the password after first login.", managerUsername);
+                    return saved;
+                });
+    }
+
+    private void seedSampleHoldings(User owner) {
         if (portfolioRepository.count() > 0) {
             return;
         }
 
         Portfolio blueChip = portfolioRepository.save(
-                new Portfolio("Blue Chip India", "Large-cap Indian equities focused on stable long-term growth"));
+                new Portfolio("Blue Chip India", "Large-cap Indian equities focused on stable long-term growth", owner));
         addHolding(blueChip, "RELIANCE.NS", "Reliance Industries Ltd.", 10, "2500.00", "2023-01-15");
         addHolding(blueChip, "HDFCBANK.NS", "HDFC Bank Ltd.", 15, "1650.00", "2023-03-20");
         addHolding(blueChip, "ITC.NS", "ITC Ltd.", 50, "380.00", "2023-06-01");
         addHolding(blueChip, "TATAMOTORS.NS", "Tata Motors Ltd.", 30, "620.00", "2023-08-10");
 
         Portfolio itLeaders = portfolioRepository.save(
-                new Portfolio("IT & Tech Leaders", "Top Indian IT and technology sector stocks"));
+                new Portfolio("IT & Tech Leaders", "Top Indian IT and technology sector stocks", owner));
         addHolding(itLeaders, "TCS.NS", "Tata Consultancy Services", 5, "3500.00", "2023-02-10");
         addHolding(itLeaders, "INFY.NS", "Infosys Ltd.", 12, "1400.00", "2022-11-01");
         addHolding(itLeaders, "WIPRO.NS", "Wipro Ltd.", 20, "450.00", "2023-01-01");

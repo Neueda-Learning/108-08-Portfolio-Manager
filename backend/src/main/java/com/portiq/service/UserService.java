@@ -1,24 +1,23 @@
 package com.portiq.service;
 
+import com.portiq.model.Role;
 import com.portiq.model.User;
 import com.portiq.repository.UserRepository;
-import com.portiq.repository.WebauthnCredentialRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final WebauthnCredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, WebauthnCredentialRepository credentialRepository,
-                        PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -32,12 +31,36 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + username));
     }
 
-    public User getSoleUser() {
-        return userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new IllegalStateException("No user account has been set up"));
+    public User getCurrentUser(Authentication authentication) {
+        return getByUsername(authentication.getName());
     }
 
-    public boolean hasBiometricCredential(Long userId) {
-        return !credentialRepository.findByUserId(userId).isEmpty();
+    public Long getCurrentUserId(Authentication authentication) {
+        return getCurrentUser(authentication).getId();
+    }
+
+    public List<User> listCustomers() {
+        return userRepository.findByRole(Role.OWNER);
+    }
+
+    public User createCustomer(String username, String rawPassword, String name, String email, User managedBy) {
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Username '" + username + "' is already taken");
+        }
+        User user = new User(username, passwordEncoder.encode(rawPassword), Role.OWNER);
+        user.setName(name);
+        user.setEmail(email);
+        user.setManagedBy(managedBy);
+        return userRepository.save(user);
+    }
+
+    public User getCustomerById(Long id) {
+        return userRepository.findById(id)
+                .filter(u -> u.getRole() == Role.OWNER)
+                .orElseThrow(() -> new IllegalStateException("Customer not found with id: " + id));
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }

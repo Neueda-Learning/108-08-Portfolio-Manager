@@ -26,8 +26,8 @@ public class InsightsService {
         return chatCompletionClient.isConfigured();
     }
 
-    public String generateSummary() {
-        PerformanceSummary summary = holdingService.getAggregatePerformance();
+    public String generateSummary(Long ownerId) {
+        PerformanceSummary summary = holdingService.getAggregatePerformance(ownerId);
 
         List<Map<String, Object>> messages = List.of(
                 Map.of("role", "system", "content",

@@ -4,8 +4,10 @@ import com.portiq.dto.NewsArticle;
 import com.portiq.model.Holding;
 import com.portiq.service.HoldingService;
 import com.portiq.service.NewsService;
+import com.portiq.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,16 +25,18 @@ public class NewsController {
 
     private final NewsService newsService;
     private final HoldingService holdingService;
+    private final UserService userService;
 
-    public NewsController(NewsService newsService, HoldingService holdingService) {
+    public NewsController(NewsService newsService, HoldingService holdingService, UserService userService) {
         this.newsService = newsService;
         this.holdingService = holdingService;
+        this.userService = userService;
     }
 
     @GetMapping
     @Operation(summary = "Get market news for the current holdings plus general market headlines")
-    public List<NewsArticle> getNews() {
-        Set<String> tickers = holdingService.getAllHoldings().stream()
+    public List<NewsArticle> getNews(Authentication authentication) {
+        Set<String> tickers = holdingService.getAllHoldings(userService.getCurrentUserId(authentication)).stream()
                 .map(Holding::getTicker)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 

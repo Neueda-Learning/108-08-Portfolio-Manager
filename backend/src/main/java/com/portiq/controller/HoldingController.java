@@ -3,11 +3,13 @@ package com.portiq.controller;
 import com.portiq.dto.HoldingRequest;
 import com.portiq.model.Holding;
 import com.portiq.service.HoldingService;
+import com.portiq.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,29 +20,32 @@ import java.util.List;
 public class HoldingController {
 
     private final HoldingService holdingService;
+    private final UserService userService;
 
-    public HoldingController(HoldingService holdingService) {
+    public HoldingController(HoldingService holdingService, UserService userService) {
         this.holdingService = holdingService;
+        this.userService = userService;
     }
 
     @GetMapping
     @Operation(summary = "List all holdings in a portfolio")
-    public List<Holding> getHoldings(@PathVariable Long portfolioId) {
-        return holdingService.getHoldingsByPortfolio(portfolioId);
+    public List<Holding> getHoldings(@PathVariable Long portfolioId, Authentication authentication) {
+        return holdingService.getHoldingsByPortfolio(portfolioId, userService.getCurrentUserId(authentication));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a specific holding")
-    public Holding getHolding(@PathVariable Long portfolioId, @PathVariable Long id) {
-        return holdingService.getHolding(portfolioId, id);
+    public Holding getHolding(@PathVariable Long portfolioId, @PathVariable Long id, Authentication authentication) {
+        return holdingService.getHolding(portfolioId, id, userService.getCurrentUserId(authentication));
     }
 
     @PostMapping
     @Operation(summary = "Add a holding to a portfolio")
     public ResponseEntity<Holding> addHolding(
             @PathVariable Long portfolioId,
-            @Valid @RequestBody HoldingRequest request) {
-        Holding created = holdingService.addHolding(portfolioId, request);
+            @Valid @RequestBody HoldingRequest request,
+            Authentication authentication) {
+        Holding created = holdingService.addHolding(portfolioId, request, userService.getCurrentUser(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -49,14 +54,15 @@ public class HoldingController {
     public Holding updateHolding(
             @PathVariable Long portfolioId,
             @PathVariable Long id,
-            @Valid @RequestBody HoldingRequest request) {
-        return holdingService.updateHolding(portfolioId, id, request);
+            @Valid @RequestBody HoldingRequest request,
+            Authentication authentication) {
+        return holdingService.updateHolding(portfolioId, id, request, userService.getCurrentUserId(authentication));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Remove a holding from a portfolio")
-    public ResponseEntity<Void> removeHolding(@PathVariable Long portfolioId, @PathVariable Long id) {
-        holdingService.removeHolding(portfolioId, id);
+    public ResponseEntity<Void> removeHolding(@PathVariable Long portfolioId, @PathVariable Long id, Authentication authentication) {
+        holdingService.removeHolding(portfolioId, id, userService.getCurrentUserId(authentication));
         return ResponseEntity.noContent().build();
     }
 }

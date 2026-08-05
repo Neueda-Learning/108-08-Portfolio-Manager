@@ -6,6 +6,7 @@ import com.portiq.dto.PerformanceSummary;
 import com.portiq.exception.ResourceNotFoundException;
 import com.portiq.model.Holding;
 import com.portiq.model.Portfolio;
+import com.portiq.model.User;
 import com.portiq.repository.HoldingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,24 +33,25 @@ public class HoldingService {
     }
 
     @Transactional(readOnly = true)
-    public List<Holding> getHoldingsByPortfolio(Long portfolioId) {
-        portfolioService.getById(portfolioId);
+    public List<Holding> getHoldingsByPortfolio(Long portfolioId, Long ownerId) {
+        portfolioService.getById(portfolioId, ownerId);
         return holdingRepository.findByPortfolioId(portfolioId);
     }
 
     @Transactional(readOnly = true)
-    public Holding getHolding(Long portfolioId, Long holdingId) {
+    public Holding getHolding(Long portfolioId, Long holdingId, Long ownerId) {
+        portfolioService.getById(portfolioId, ownerId);
         return holdingRepository.findByIdAndPortfolioId(holdingId, portfolioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Holding not found with id: " + holdingId));
     }
 
-    public Holding addHolding(Long portfolioId, HoldingRequest request) {
-        Portfolio portfolio = portfolioService.getById(portfolioId);
-        return mergeOrCreate(portfolio, request);
+    public Holding addHolding(Long portfolioId, HoldingRequest request, User owner) {
+        Portfolio portfolio = portfolioService.getById(portfolioId, owner.getId());
+        return mergeOrCreate(portfolio, request, owner.getId());
     }
 
-    public Holding updateHolding(Long portfolioId, Long holdingId, HoldingRequest request) {
-        Holding holding = getHolding(portfolioId, holdingId);
+    public Holding updateHolding(Long portfolioId, Long holdingId, HoldingRequest request, Long ownerId) {
+        Holding holding = getHolding(portfolioId, holdingId, ownerId);
         holding.setTicker(request.getTicker().toUpperCase());
         holding.setName(request.getName());
         holding.setType(request.getType());
@@ -59,24 +61,24 @@ public class HoldingService {
         return holdingRepository.save(holding);
     }
 
-    public void removeHolding(Long portfolioId, Long holdingId) {
-        Holding holding = getHolding(portfolioId, holdingId);
+    public void removeHolding(Long portfolioId, Long holdingId, Long ownerId) {
+        Holding holding = getHolding(portfolioId, holdingId, ownerId);
         holdingRepository.delete(holding);
     }
 
     @Transactional(readOnly = true)
-    public List<Holding> getAllHoldings() {
-        return holdingRepository.findAll();
+    public List<Holding> getAllHoldings(Long ownerId) {
+        return holdingRepository.findByPortfolio_Owner_Id(ownerId);
     }
 
     @Transactional(readOnly = true)
-    public Holding getHoldingById(Long id) {
-        return holdingRepository.findById(id)
+    public Holding getHoldingById(Long id, Long ownerId) {
+        return holdingRepository.findByIdAndPortfolio_Owner_Id(id, ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Holding not found with id: " + id));
     }
 
-    public Holding updateHoldingById(Long id, HoldingRequest request) {
-        Holding holding = getHoldingById(id);
+    public Holding updateHoldingById(Long id, HoldingRequest request, Long ownerId) {
+        Holding holding = getHoldingById(id, ownerId);
         holding.setTicker(request.getTicker().toUpperCase());
         holding.setName(request.getName());
         holding.setType(request.getType());
@@ -86,19 +88,19 @@ public class HoldingService {
         return holdingRepository.save(holding);
     }
 
-    public void removeHoldingById(Long id) {
-        holdingRepository.delete(getHoldingById(id));
+    public void removeHoldingById(Long id, Long ownerId) {
+        holdingRepository.delete(getHoldingById(id, ownerId));
     }
 
     /**
      * Adds a holding, merging it into any existing holding with the same ticker - regardless of
      * which portfolio it lives in, since the app presents one flat "all holdings" view - instead
      * of creating a duplicate row. Only a genuinely new ticker is created under the given
-     * (default) portfolio.
+     * (default) portfolio. Scoped to a single owner so customers' holdings never merge together.
      */
-    public Holding mergeOrCreate(Portfolio portfolio, HoldingRequest request) {
+    public Holding mergeOrCreate(Portfolio portfolio, HoldingRequest request, Long ownerId) {
         String ticker = request.getTicker().toUpperCase();
-        List<Holding> existing = holdingRepository.findAll();
+        List<Holding> existing = holdingRepository.findByPortfolio_Owner_Id(ownerId);
 
         return existing.stream()
                 .filter(h -> h.getTicker().equalsIgnoreCase(ticker))
@@ -118,14 +120,14 @@ public class HoldingService {
     }
 
     @Transactional(readOnly = true)
-    public PerformanceSummary getAggregatePerformance() {
-        List<Holding> holdings = holdingRepository.findAll();
+    public PerformanceSummary getAggregatePerformance(Long ownerId) {
+        List<Holding> holdings = holdingRepository.findByPortfolio_Owner_Id(ownerId);
         return summarize(null, "All Holdings", holdings);
     }
 
     @Transactional(readOnly = true)
-    public PerformanceSummary getPerformance(Long portfolioId) {
-        Portfolio portfolio = portfolioService.getById(portfolioId);
+    public PerformanceSummary getPerformance(Long portfolioId, Long ownerId) {
+        Portfolio portfolio = portfolioService.getById(portfolioId, ownerId);
         List<Holding> holdings = holdingRepository.findByPortfolioId(portfolioId);
         return summarize(portfolioId, portfolio.getName(), holdings);
     }

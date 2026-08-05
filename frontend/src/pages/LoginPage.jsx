@@ -4,19 +4,17 @@ import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import { useAuth } from "../context/AuthContext";
 import { authService } from "../services/authService";
-import { getBiometricAssertion, isWebAuthnSupported } from "../utils/webauthn";
 
 function LoginPage() {
-  const { isAuthenticated, applySession } = useAuth();
+  const { isAuthenticated, isFundManager, applySession } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [biometricSubmitting, setBiometricSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={isFundManager ? "/manager" : "/"} replace />;
   }
 
   async function handlePasswordLogin(event) {
@@ -30,21 +28,6 @@ function LoginPage() {
       setError(err.message);
     } finally {
       setSubmitting(false);
-    }
-  }
-
-  async function handleBiometricLogin() {
-    setError("");
-    setBiometricSubmitting(true);
-    try {
-      const options = await authService.getLoginOptions();
-      const credential = await getBiometricAssertion(options);
-      const session = await authService.verifyLogin(credential);
-      applySession(session);
-    } catch (err) {
-      setError(err.message || "Biometric sign-in was not completed");
-    } finally {
-      setBiometricSubmitting(false);
     }
   }
 
@@ -97,20 +80,6 @@ function LoginPage() {
             </Button>
           </div>
         </form>
-
-        {isWebAuthnSupported() && (
-          <>
-            <div className="login-divider">or</div>
-            <Button
-              variant="ghost"
-              className="full-width"
-              onClick={handleBiometricLogin}
-              loading={biometricSubmitting}
-            >
-              Sign in with biometrics
-            </Button>
-          </>
-        )}
       </Card>
     </div>
   );

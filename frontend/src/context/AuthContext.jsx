@@ -7,7 +7,10 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
   const [username, setUsername] = useState(null);
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [name, setName] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
+  const [managerUsername, setManagerUsername] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +22,10 @@ export function AuthProvider({ children }) {
       .me()
       .then((data) => {
         setUsername(data.username);
-        setBiometricEnabled(data.biometricEnabled);
+        setName(data.name);
+        setEmail(data.email);
+        setRole(data.role);
+        setManagerUsername(data.managerUsername);
       })
       .catch(() => {
         localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -32,25 +38,31 @@ export function AuthProvider({ children }) {
     localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
     setToken(data.token);
     setUsername(data.username);
-    setBiometricEnabled(data.biometricEnabled);
+    setRole(data.role);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     setToken(null);
     setUsername(null);
-    setBiometricEnabled(false);
+    setName(null);
+    setEmail(null);
+    setRole(null);
+    setManagerUsername(null);
   }, []);
 
   const value = {
     token,
     username,
-    biometricEnabled,
+    name,
+    email,
+    role,
+    isFundManager: role === "FUND_MANAGER",
+    managerUsername,
     loading,
     isAuthenticated: !!token,
     applySession,
     logout,
-    setBiometricEnabled,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

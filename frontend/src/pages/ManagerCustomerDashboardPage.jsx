@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Button from "../components/common/Button";
+import { Link, useParams } from "react-router-dom";
 import Card from "../components/common/Card";
 import StatCard from "../components/common/StatCard";
 import Skeleton from "../components/common/Skeleton";
 import PerformanceCharts from "../components/charts/PerformanceCharts";
 import TrendChart from "../components/charts/TrendChart";
 import AllocationPieChart from "../components/charts/AllocationPieChart";
-import NewsList from "../components/news/NewsList";
-import { holdingsService } from "../services/holdingsService";
-import { newsService } from "../services/newsService";
-import { insightsService } from "../services/insightsService";
+import { managerService } from "../services/managerService";
 import { useToast } from "../context/ToastContext";
-import { useAuth } from "../context/AuthContext";
 import { formatMoney, formatPercent, formatSignedMoney } from "../utils/formatters";
 
 const RANGES = [
@@ -21,57 +17,44 @@ const RANGES = [
   { key: "all", label: "All" },
 ];
 
-function DashboardPage() {
+function ManagerCustomerDashboardPage() {
+  const { customerId } = useParams();
   const toast = useToast();
-  const { name, email } = useAuth();
+  const [customer, setCustomer] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [history, setHistory] = useState([]);
   const [range, setRange] = useState("1m");
-  const [news, setNews] = useState([]);
-  const [summary, setSummary] = useState("");
-  const [summaryError, setSummaryError] = useState("");
-  const [summaryLoading, setSummaryLoading] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const loadCustomer = useCallback(async () => {
+    const data = await managerService.getCustomer(customerId);
+    setCustomer(data);
+  }, [customerId]);
+
   const loadPerformance = useCallback(async () => {
-    const data = await holdingsService.getAll();
+    const data = await managerService.getCustomerHoldings(customerId);
     setPerformance(data);
-  }, []);
+  }, [customerId]);
 
-  const loadHistory = useCallback(async (selectedRange) => {
-    const points = await holdingsService.getHistory(selectedRange);
-    setHistory(points);
-  }, []);
-
-  const loadNews = useCallback(async () => {
-    const articles = await newsService.getNews();
-    setNews(articles);
-  }, []);
+  const loadHistory = useCallback(
+    async (selectedRange) => {
+      const points = await managerService.getCustomerHistory(customerId, selectedRange);
+      setHistory(points);
+    },
+    [customerId]
+  );
 
   useEffect(() => {
-    Promise.all([loadPerformance(), loadNews()])
+    setLoading(true);
+    Promise.all([loadCustomer(), loadPerformance()])
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadPerformance, loadNews]);
+  }, [loadCustomer, loadPerformance]);
 
   useEffect(() => {
     loadHistory(range).catch(() => setHistory([]));
   }, [range, loadHistory]);
-
-  async function handleSummary() {
-    setSummaryLoading(true);
-    setSummaryError("");
-    setSummary("");
-    try {
-      const data = await insightsService.getSummary();
-      setSummary(data.summary);
-    } catch (error) {
-      setSummaryError(error.message);
-    } finally {
-      setSummaryLoading(false);
-    }
-  }
 
   const stats = useMemo(() => {
     if (!performance) return null;
@@ -140,19 +123,15 @@ function DashboardPage() {
     <div>
       <section className="hero">
         <div>
-          <h1>Dashboard</h1>
+          <h1>Customer Dashboard</h1>
           <p className="subtitle">
-            {name ? `${name} (${email}) · ` : ""}Live overview of your holdings and market value
+            {customer ? `${customer.name} · ${customer.username} · ${customer.email}` : "Live overview of this customer's holdings and market value"}
           </p>
         </div>
-        <Button onClick={handleSummary} loading={summaryLoading}>
-          Summary
-        </Button>
+        <Link className="button ghost" to={`/manager/customers/${customerId}/holdings`}>
+          Manage Holdings
+        </Link>
       </section>
-
-      {(summary || summaryError) && (
-        <div className={`summary-banner ${summaryError ? "summary-error" : ""}`}>{summaryError || summary}</div>
-      )}
 
       {stats && (
         <div className="grid stat-grid">
@@ -188,15 +167,8 @@ function DashboardPage() {
           <PerformanceCharts holdings={holdings} />
         </div>
       </section>
-
-      <section className="section-gap-lg">
-        <div className="section-heading">
-          <h2>Market News</h2>
-        </div>
-        <NewsList articles={news} />
-      </section>
     </div>
   );
 }
 
-export default DashboardPage;
+export default ManagerCustomerDashboardPage;
