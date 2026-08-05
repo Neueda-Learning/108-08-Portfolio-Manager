@@ -1,0 +1,154 @@
+package com.example.repository;
+
+import com.example.model.PortfolioHolding;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class PortfolioHoldingRepository {
+    private final JdbcTemplate jdbcTemplate;
+
+    public PortfolioHoldingRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    private final RowMapper<PortfolioHolding> rowMapper = (rs, rowNum) -> new PortfolioHolding(
+            rs.getLong("id"),
+            rs.getLong("portfolio_id"),
+            rs.getLong("asset_id"),
+            rs.getBigDecimal("quantity"),
+            rs.getBigDecimal("average_buy_price"),
+            rs.getBigDecimal("invested_amount"),
+            rs.getBigDecimal("current_value")
+    );
+
+    public PortfolioHolding create(PortfolioHolding holding) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO portfolio_holding(portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value) VALUES (?, ?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setLong(1, holding.getPortfolioId());
+            ps.setLong(2, holding.getAssetId());
+            ps.setBigDecimal(3, holding.getQuantity());
+            ps.setBigDecimal(4, holding.getAverageBuyPrice());
+            ps.setBigDecimal(5, holding.getInvestedAmount());
+            ps.setBigDecimal(6, holding.getCurrentValue());
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        return new PortfolioHolding(key != null ? key.longValue() : null, holding.getPortfolioId(), holding.getAssetId(),
+                holding.getQuantity(), holding.getAverageBuyPrice(), holding.getInvestedAmount(), holding.getCurrentValue());
+    }
+
+    public Optional<PortfolioHolding> findById(Long id) {
+        List<PortfolioHolding> rows = jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE id = ?",
+                rowMapper,
+                id
+        );
+        return rows.stream().findFirst();
+    }
+
+    public List<PortfolioHolding> findAll() {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding ORDER BY id",
+                rowMapper
+        );
+    }
+
+    public List<PortfolioHolding> findByPortfolioId(Long portfolioId) {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE portfolio_id = ? ORDER BY id",
+                rowMapper,
+                portfolioId
+        );
+    }
+
+    public List<PortfolioHolding> findByAssetId(Long assetId) {
+        return jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE asset_id = ? ORDER BY id",
+                rowMapper,
+                assetId
+        );
+    }
+
+    public int update(PortfolioHolding holding) {
+        return jdbcTemplate.update(
+                "UPDATE portfolio_holding SET portfolio_id = ?, asset_id = ?, quantity = ?, average_buy_price = ?, invested_amount = ?, current_value = ? WHERE id = ?",
+                holding.getPortfolioId(),
+                holding.getAssetId(),
+                holding.getQuantity(),
+                holding.getAverageBuyPrice(),
+                holding.getInvestedAmount(),
+                holding.getCurrentValue(),
+                holding.getId()
+        );
+    }
+
+    public int delete(Long id) {
+        return jdbcTemplate.update("DELETE FROM portfolio_holding WHERE id = ?", id);
+    }
+
+    public int refreshCurrentValueForAsset(Long assetId, BigDecimal currentPrice) {
+        return jdbcTemplate.update(
+                "UPDATE portfolio_holding SET current_value = quantity * ? WHERE asset_id = ?",
+                currentPrice,
+                assetId
+        );
+    }
+
+    public Optional<PortfolioHolding> findByPortfolioIdAndAssetId(Long portfolioId, Long assetId) {
+        List<PortfolioHolding> rows = jdbcTemplate.query(
+                "SELECT id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value FROM portfolio_holding WHERE portfolio_id = ? AND asset_id = ?",
+                rowMapper,
+                portfolioId,
+                assetId
+        );
+        return rows.stream().findFirst();
+    }
+
+    public PortfolioHolding upsertBuyHolding(Long portfolioId,
+                                             Long assetId,
+                                             BigDecimal quantity,
+                                             BigDecimal buyPrice,
+                                             BigDecimal markPrice) {
+        BigDecimal investedAmount = buyPrice.multiply(quantity);
+        BigDecimal currentValue = markPrice.multiply(quantity);
+
+        return jdbcTemplate.queryForObject(
+                """
+                INSERT INTO portfolio_holding(portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (portfolio_id, asset_id) DO UPDATE
+                SET quantity = portfolio_holding.quantity + EXCLUDED.quantity,
+                    invested_amount = portfolio_holding.invested_amount + EXCLUDED.invested_amount,
+                    average_buy_price = CASE
+                        WHEN (portfolio_holding.quantity + EXCLUDED.quantity) = 0 THEN 0
+                        ELSE (portfolio_holding.invested_amount + EXCLUDED.invested_amount)
+                             / (portfolio_holding.quantity + EXCLUDED.quantity)
+                    END,
+                    current_value = (portfolio_holding.quantity + EXCLUDED.quantity) * ?
+                RETURNING id, portfolio_id, asset_id, quantity, average_buy_price, invested_amount, current_value
+                """,
+                rowMapper,
+                portfolioId,
+                assetId,
+                quantity,
+                buyPrice,
+                investedAmount,
+                currentValue,
+                markPrice
+        );
+    }
+}
