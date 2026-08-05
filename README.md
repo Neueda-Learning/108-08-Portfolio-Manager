@@ -1,5 +1,7 @@
 # 108-08-Portfolio-Manager
 
+Excel File Link : https://docs.google.com/spreadsheets/d/10w-M3sMVEZicuMOmBeUxVbo3azkRK2Wu-cRgqhG8PFM/edit?usp=drivesdk
+
 ## Current MVP implementation
 
 - Backend uses **Spring Boot + Spring JDBC + JdbcTemplate** with PostgreSQL (Supabase).
