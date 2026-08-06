@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-portfoliom}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-portfoliom_root}
     ports:
-      - "3306:3306"
+      - "8084:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -40,7 +40,7 @@ services:
       MANAGER_USERNAME: ${MANAGER_USERNAME:-fundmanager}
       MANAGER_PASSWORD: ${MANAGER_PASSWORD:-FundManager123!}
     ports:
-      - "4001:4001"
+      - "8083:4001"
     volumes:
       - ./backend/src:/app/src
       - maven_repo:/root/.m2
@@ -54,7 +54,7 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:4001}
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8083}
     ports:
       - "8082:5173"
     volumes:
