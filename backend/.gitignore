@@ -36,3 +36,8 @@ build/
 
 ### Environment variables ###
 .env
+
+### Local persistent database (H2 file store) ###
+data/
+*.mv.db
+*.trace.db
