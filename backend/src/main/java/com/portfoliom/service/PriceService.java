@@ -18,4 +18,10 @@ public class PriceService {
         BigDecimal live = priceLookupService.fetchLivePrice(ticker);
         return live != null ? live : fallback;
     }
+
+    /** Forces the next {@link #getCurrentPrice} call for this ticker to hit Yahoo Finance live. */
+    public void invalidate(String ticker) {
+        if (ticker == null || ticker.isBlank()) return;
+        priceLookupService.evict(ticker);
+    }
 }

@@ -1,6 +1,7 @@
 package com.portfoliom.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 public class PerformanceSummary {
@@ -12,6 +13,7 @@ public class PerformanceSummary {
     private BigDecimal totalGainLoss;
     private BigDecimal gainLossPercent;
     private List<HoldingPerformance> holdings;
+    private Instant pricesAsOf;
 
     public Long getPortfolioId() { return portfolioId; }
     public void setPortfolioId(Long portfolioId) { this.portfolioId = portfolioId; }
@@ -27,4 +29,6 @@ public class PerformanceSummary {
     public void setGainLossPercent(BigDecimal gainLossPercent) { this.gainLossPercent = gainLossPercent; }
     public List<HoldingPerformance> getHoldings() { return holdings; }
     public void setHoldings(List<HoldingPerformance> holdings) { this.holdings = holdings; }
+    public Instant getPricesAsOf() { return pricesAsOf; }
+    public void setPricesAsOf(Instant pricesAsOf) { this.pricesAsOf = pricesAsOf; }
 }

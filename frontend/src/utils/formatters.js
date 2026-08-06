@@ -15,3 +15,10 @@ export function formatSignedMoney(value) {
   const numericValue = Number(value || 0);
   return `${numericValue >= 0 ? "+" : ""}${formatMoney(numericValue)}`;
 }
+
+export function formatTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}

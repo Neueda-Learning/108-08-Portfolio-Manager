@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   me: "/api/auth/me",
 
   allHoldings: "/api/holdings",
+  allHoldingsRefresh: "/api/holdings?refresh=true",
   holdingByIdFlat: (id) => `/api/holdings/${id}`,
   holdingsHistory: (range) => `/api/holdings/history?range=${encodeURIComponent(range)}`,
   importCsv: "/api/holdings/import/csv",

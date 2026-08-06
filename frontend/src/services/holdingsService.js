@@ -41,11 +41,13 @@ async function downloadFile(url, filename) {
 }
 
 export const holdingsService = {
-  getAll: async () => {
+  getAll: async ({ force = false } = {}) => {
     const cacheKey = `${CACHE_PREFIX}all`;
-    const cached = getCached(cacheKey);
-    if (cached) return cached;
-    const data = await apiClient(API_ENDPOINTS.allHoldings);
+    if (!force) {
+      const cached = getCached(cacheKey);
+      if (cached) return cached;
+    }
+    const data = await apiClient(force ? API_ENDPOINTS.allHoldingsRefresh : API_ENDPOINTS.allHoldings);
     setCached(cacheKey, data, HOLDINGS_TTL);
     return data;
   },

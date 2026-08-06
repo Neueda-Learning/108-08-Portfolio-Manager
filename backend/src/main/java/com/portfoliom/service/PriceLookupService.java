@@ -1,5 +1,6 @@
 package com.portfoliom.service;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +21,10 @@ import java.util.Map;
 @Service
 public class PriceLookupService {
 
-    private static final String YAHOO_API = "https://query2.finance.yahoo.com/v7/finance/quote?symbols=";
+    // Yahoo's legacy v7 quote endpoint now returns 401 Unauthorized for unauthenticated callers.
+    // The v8 chart endpoint (also used by PriceSeriesFetcher for history) still works and reports
+    // the live price via meta.regularMarketPrice, so it doubles as the live quote source.
+    private static final String CHART_API = "https://query1.finance.yahoo.com/v8/finance/chart/";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -33,25 +37,38 @@ public class PriceLookupService {
             headers.set("Accept", "application/json");
 
             ResponseEntity<Map> response = restTemplate.exchange(
-                    YAHOO_API + ticker,
+                    CHART_API + ticker + "?range=1d&interval=1m",
                     HttpMethod.GET,
                     new HttpEntity<>(headers),
                     Map.class);
 
-            if (response.getBody() != null) {
-                Map<String, Object> quoteResponse = (Map<String, Object>) response.getBody().get("quoteResponse");
-                if (quoteResponse != null) {
-                    List<Map<String, Object>> results = (List<Map<String, Object>>) quoteResponse.get("result");
-                    if (results != null && !results.isEmpty()) {
-                        Object price = results.get(0).get("regularMarketPrice");
-                        if (price != null) {
-                            return new BigDecimal(price.toString());
-                        }
-                    }
-                }
+            Map<String, Object> body = response.getBody();
+            if (body == null) return null;
+
+            Map<String, Object> chart = (Map<String, Object>) body.get("chart");
+            if (chart == null) return null;
+            List<Map<String, Object>> results = (List<Map<String, Object>>) chart.get("result");
+            if (results == null || results.isEmpty()) return null;
+
+            Map<String, Object> meta = (Map<String, Object>) results.get(0).get("meta");
+            if (meta == null) return null;
+
+            Object price = meta.get("regularMarketPrice");
+            if (price != null) {
+                return new BigDecimal(price.toString());
             }
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    /**
+     * Drops the cached quote for a ticker so the next {@link #fetchLivePrice} call re-fetches
+     * live from Yahoo Finance instead of returning a stale value. Used by the manual "Refresh"
+     * action in the UI.
+     */
+    @CacheEvict(value = "prices", key = "#ticker")
+    public void evict(String ticker) {
+        // No-op body - eviction happens via the annotation.
     }
 }

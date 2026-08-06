@@ -96,7 +96,7 @@ public class DataSeeder implements CommandLineRunner {
         addHolding(blueChip, "RELIANCE.NS", "Reliance Industries Ltd.", 10, "2500.00", "2023-01-15");
         addHolding(blueChip, "HDFCBANK.NS", "HDFC Bank Ltd.", 15, "1650.00", "2023-03-20");
         addHolding(blueChip, "ITC.NS", "ITC Ltd.", 50, "380.00", "2023-06-01");
-        addHolding(blueChip, "TATAMOTORS.NS", "Tata Motors Ltd.", 30, "620.00", "2023-08-10");
+        addHolding(blueChip, "TMCV.NS", "Tata Motors Ltd. (Commercial Vehicles)", 30, "620.00", "2023-08-10");
 
         Portfolio itLeaders = portfolioRepository.save(
                 new Portfolio("IT & Tech Leaders", "Top Indian IT and technology sector stocks", owner));
@@ -104,6 +104,16 @@ public class DataSeeder implements CommandLineRunner {
         addHolding(itLeaders, "INFY.NS", "Infosys Ltd.", 12, "1400.00", "2022-11-01");
         addHolding(itLeaders, "WIPRO.NS", "Wipro Ltd.", 20, "450.00", "2023-01-01");
         addHolding(itLeaders, "BAJFINANCE.NS", "Bajaj Finance Ltd.", 3, "7200.00", "2023-05-15");
+
+        // Highly liquid, actively-traded US mega-caps so quote-driven P&L visibly moves during
+        // US market hours - useful for demoing the "Refresh Prices" live-update button.
+        Portfolio usGrowth = portfolioRepository.save(
+                new Portfolio("US Growth Watchlist", "Actively-traded US tech stocks for live price demos", owner));
+        addHolding(usGrowth, "AAPL", "Apple Inc.", 15, "180.00", "2023-04-01");
+        addHolding(usGrowth, "MSFT", "Microsoft Corp.", 10, "330.00", "2023-03-15");
+        addHolding(usGrowth, "NVDA", "NVIDIA Corp.", 8, "450.00", "2023-07-01");
+        addHolding(usGrowth, "TSLA", "Tesla Inc.", 12, "220.00", "2023-05-20");
+        addHolding(usGrowth, "AMZN", "Amazon.com Inc.", 10, "130.00", "2023-06-10");
     }
 
     private void addHolding(Portfolio portfolio, String ticker, String name, int quantity, String price, String date) {
