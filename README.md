@@ -1,6 +1,6 @@
 # 108-08-Portfolio-Manager
 
-Excel File Link : https://docs.google.com/spreadsheets/d/10w-M3sMVEZicuMOmBeUxVbo3azkRK2Wu-cRgqhG8PFM/edit?usp=drivesdk
+Excel File Link : https://docs.google.com/spreadsheets/d/10w-M3sMVEzicuMOmBeUxVbo3azkRK2Wu-cRgqhG8PFM/edit?usp=sharing
 
 ## Current MVP implementation
 
@@ -723,5 +723,3 @@ com.wealthsphere
 
 ---
 
-CHAT LINK:
-https://chatgpt.com/share/6a6c2f4f-9060-83ee-9d79-7440fe0feea8
