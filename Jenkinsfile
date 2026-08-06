@@ -22,18 +22,28 @@ pipeline {
 
         stage('Build & Test Backend') {
             steps {
-                dir('backend') {
-                    sh 'mvn -B -q clean verify'
-                }
+                // Run inside the same Maven image used by the app's Dockerfile so the
+                // Jenkins host doesn't need Maven/JDK installed directly.
+                sh '''
+                    docker run --rm \
+                        -v "$WORKSPACE/backend":/app -w /app \
+                        -v jenkins_maven_repo:/root/.m2 \
+                        maven:3.9.9-eclipse-temurin-17 \
+                        mvn -B -q clean verify
+                '''
             }
         }
 
         stage('Build & Test Frontend') {
             steps {
-                dir('frontend') {
-                    sh 'npm ci'
-                    sh 'npm run build'
-                }
+                // Same idea: use a throwaway Node container instead of requiring
+                // npm/node on the Jenkins host.
+                sh '''
+                    docker run --rm \
+                        -v "$WORKSPACE/frontend":/app -w /app \
+                        node:20-alpine \
+                        sh -c "npm ci && npm run build"
+                '''
             }
         }
 
