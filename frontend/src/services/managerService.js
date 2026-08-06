@@ -11,7 +11,8 @@ export const managerService = {
 
   removeCustomer: (id) => apiClient(API_ENDPOINTS.managerCustomerById(id), { method: "DELETE" }),
 
-  getCustomerHoldings: (id) => apiClient(API_ENDPOINTS.managerCustomerHoldings(id)),
+  getCustomerHoldings: (id, { force = false } = {}) =>
+    apiClient(force ? API_ENDPOINTS.managerCustomerHoldingsRefresh(id) : API_ENDPOINTS.managerCustomerHoldings(id)),
 
   addCustomerHolding: (id, payload) =>
     apiClient(API_ENDPOINTS.managerCustomerHoldings(id), { method: "POST", body: JSON.stringify(payload) }),

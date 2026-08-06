@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import StatCard from "../components/common/StatCard";
 import Skeleton from "../components/common/Skeleton";
@@ -8,7 +9,7 @@ import TrendChart from "../components/charts/TrendChart";
 import AllocationPieChart from "../components/charts/AllocationPieChart";
 import { managerService } from "../services/managerService";
 import { useToast } from "../context/ToastContext";
-import { formatMoney, formatPercent, formatSignedMoney } from "../utils/formatters";
+import { formatMoney, formatPercent, formatSignedMoney, formatTime } from "../utils/formatters";
 
 const RANGES = [
   { key: "1d", label: "1D" },
@@ -25,14 +26,15 @@ function ManagerCustomerDashboardPage() {
   const [history, setHistory] = useState([]);
   const [range, setRange] = useState("1m");
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadCustomer = useCallback(async () => {
     const data = await managerService.getCustomer(customerId);
     setCustomer(data);
   }, [customerId]);
 
-  const loadPerformance = useCallback(async () => {
-    const data = await managerService.getCustomerHoldings(customerId);
+  const loadPerformance = useCallback(async (force = false) => {
+    const data = await managerService.getCustomerHoldings(customerId, { force });
     setPerformance(data);
   }, [customerId]);
 
@@ -55,6 +57,19 @@ function ManagerCustomerDashboardPage() {
   useEffect(() => {
     loadHistory(range).catch(() => setHistory([]));
   }, [range, loadHistory]);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      await loadPerformance(true);
+      await loadHistory(range);
+      toast.success("Live prices refreshed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   const stats = useMemo(() => {
     if (!performance) return null;
@@ -127,10 +142,16 @@ function ManagerCustomerDashboardPage() {
           <p className="subtitle">
             {customer ? `${customer.name} · ${customer.username} · ${customer.email}` : "Live overview of this customer's holdings and market value"}
           </p>
+          {performance?.pricesAsOf && <p className="meta-line">Prices updated {formatTime(performance.pricesAsOf)}</p>}
         </div>
-        <Link className="button ghost" to={`/manager/customers/${customerId}/holdings`}>
-          Manage Holdings
-        </Link>
+        <div className="actions">
+          <Button variant="ghost" onClick={handleRefresh} loading={refreshing}>
+            Refresh Prices
+          </Button>
+          <Link className="button ghost" to={`/manager/customers/${customerId}/holdings`}>
+            Manage Holdings
+          </Link>
+        </div>
       </section>
 
       {stats && (

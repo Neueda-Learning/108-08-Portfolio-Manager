@@ -9,7 +9,7 @@ import Skeleton from "../components/common/Skeleton";
 import HoldingForm from "../components/holdings/HoldingForm";
 import { managerService } from "../services/managerService";
 import { useToast } from "../context/ToastContext";
-import { formatMoney, formatPercent, formatSignedMoney } from "../utils/formatters";
+import { formatMoney, formatPercent, formatSignedMoney, formatTime } from "../utils/formatters";
 
 const EMPTY_FORM = {
   ticker: "",
@@ -31,9 +31,10 @@ function ManagerCustomerHoldingsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadHoldings = useCallback(async () => {
-    const data = await managerService.getCustomerHoldings(customerId);
+  const loadHoldings = useCallback(async (force = false) => {
+    const data = await managerService.getCustomerHoldings(customerId, { force });
     setPerformance(data);
   }, [customerId]);
 
@@ -44,6 +45,18 @@ function ManagerCustomerHoldingsPage() {
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadHoldings]);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      await loadHoldings(true);
+      toast.success("Live prices refreshed");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   function openAddModal() {
     setEditingHolding(null);
@@ -194,8 +207,14 @@ function ManagerCustomerHoldingsPage() {
         <div>
           <h1>Customer Holdings</h1>
           <p className="subtitle">Manage this customer's holdings, purchase and current value, and profit and loss</p>
+          {performance?.pricesAsOf && <p className="meta-line">Prices updated {formatTime(performance.pricesAsOf)}</p>}
         </div>
-        <Button onClick={openAddModal}>Add Holding</Button>
+        <div className="actions">
+          <Button variant="ghost" onClick={handleRefresh} loading={refreshing}>
+            Refresh Prices
+          </Button>
+          <Button onClick={openAddModal}>Add Holding</Button>
+        </div>
       </section>
 
       <section className="section-gap-lg">

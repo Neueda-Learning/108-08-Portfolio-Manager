@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
   managerCustomers: "/api/manager/customers",
   managerCustomerById: (id) => `/api/manager/customers/${id}`,
   managerCustomerHoldings: (id) => `/api/manager/customers/${id}/holdings`,
+  managerCustomerHoldingsRefresh: (id) => `/api/manager/customers/${id}/holdings?refresh=true`,
   managerCustomerHoldingById: (id, holdingId) => `/api/manager/customers/${id}/holdings/${holdingId}`,
   managerCustomerHistory: (id, range) =>
     `/api/manager/customers/${id}/holdings/history?range=${encodeURIComponent(range)}`,
