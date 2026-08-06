@@ -1,29 +1,69 @@
 services:
-  core:
-    build:
-      context: ./core
-      dockerfile: Dockerfile
-    container_name: portfolio-core
+  mysql:
+    image: mysql:8.0
+    container_name: portfoliom-mysql
     restart: unless-stopped
+    command: ["--port=8084"]
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-portfoliom_db}
+      MYSQL_USER: ${DB_USERNAME:-portfoliom}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-portfoliom}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-portfoliom_root}
     ports:
-      - "8080:8080"
+      - "8084:8084"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "8084", "-uroot", "-p${DB_ROOT_PASSWORD:-portfoliom_root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portfoliom-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8083
+      DB_HOST: mysql
+      DB_PORT: 8084
+      DB_NAME: ${DB_NAME:-portfoliom_db}
+      DB_USERNAME: ${DB_USERNAME:-portfoliom}
+      DB_PASSWORD: ${DB_PASSWORD:-portfoliom}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-please-change-me-32bytes-min}
+      DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY:-z5QbRas6HQwfCUAh9bPYZ33oa7CLTzdniWcS1xtPmQ8=}
+      OWNER_USERNAME: ${OWNER_USERNAME:-owner}
+      OWNER_PASSWORD: ${OWNER_PASSWORD:-ChangeMe123!}
+      MANAGER_USERNAME: ${MANAGER_USERNAME:-fundmanager}
+      MANAGER_PASSWORD: ${MANAGER_PASSWORD:-FundManager123!}
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./backend/src:/app/src
+      - maven_repo:/root/.m2
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
-        VITE_SUPABASE_FUNCTIONS_URL: ${VITE_SUPABASE_FUNCTIONS_URL:-}
-        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
-        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
-    container_name: portfolio-frontend
+    container_name: portfoliom-frontend
     restart: unless-stopped
     depends_on:
-      - core
+      - backend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
     ports:
-      - "5173:80"
+      - "8082:8082"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data:
+  maven_repo:

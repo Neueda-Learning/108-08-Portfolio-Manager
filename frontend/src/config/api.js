@@ -1,4 +1,8 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4001";
+// Falls back to the current page's hostname so the app works out of the box on
+// localhost, an EC2 private/public IP, or any future host without needing a
+// VITE_API_BASE_URL override in .env.
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:8083`;
 
 export const TOKEN_STORAGE_KEY = "portfoliom_token";
 

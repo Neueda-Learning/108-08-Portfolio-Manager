@@ -1,15 +1,11 @@
-FROM maven:3.9.9-eclipse-temurin-17 AS builder
+FROM maven:3.9.9-eclipse-temurin-17
 WORKDIR /app
 
+# Cache dependencies in their own layer so source-only changes don't re-download the internet.
 COPY pom.xml ./
+RUN mvn -q dependency:go-offline -B
+
 COPY src ./src
 
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:17-jre
-WORKDIR /app
-
-COPY --from=builder /app/target/*.jar app.jar
-
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8083
+CMD ["mvn", "spring-boot:run"]

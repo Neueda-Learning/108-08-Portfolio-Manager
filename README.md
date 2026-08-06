@@ -162,7 +162,7 @@ Example:
 
 ## Docker Setup
 
-Run the full stack using Docker Compose:
+Run the full stack (MySQL + backend + frontend) using Docker Compose:
 
 ```bash
 docker compose up --build
@@ -170,20 +170,24 @@ docker compose up --build
 
 Services:
 
-* Frontend: http://localhost:5173
-* Core API: http://localhost:8080
-* Database: Supabase Postgres (cloud)
+* Frontend (Vite dev server): http://localhost:8082
+* Backend (Spring Boot, `mvn spring-boot:run`): http://localhost:8083
+* Database: MySQL 8, persisted in the `mysql_data` volume, exposed on port 8084
 
-Before running, copy env values and fill your Supabase connection:
-
-```bash
-cp .env.local .env
-```
+Everything runs with working defaults out of the box - no `.env` file is required. To customize
+credentials or secrets, copy `.env.example` to `.env` and edit the values; Docker Compose picks it
+up automatically.
 
 To stop and remove containers:
 
 ```bash
 docker compose down
+```
+
+To also wipe the MySQL data volume:
+
+```bash
+docker compose down -v
 ```
 
 | id | name         |
