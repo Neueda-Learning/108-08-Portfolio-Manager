@@ -7,22 +7,25 @@ set -euo pipefail
 if ! docker compose version >/dev/null 2>&1; then
   echo "Docker Compose plugin not found — installing..."
 
-  if command -v dnf >/dev/null 2>&1; then
-    sudo dnf install -y docker-compose-plugin
-  elif command -v yum >/dev/null 2>&1; then
-    sudo yum install -y docker-compose-plugin
-  elif command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update
-    sudo apt-get install -y docker-compose-plugin
-  else
-    # Fallback: install the plugin binary directly from the Docker CLI plugins release.
-    echo "No supported package manager found — installing the Compose plugin binary directly."
-    ARCH=$(uname -m)
-    mkdir -p "$HOME/.docker/cli-plugins"
-    curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${ARCH}" \
-      -o "$HOME/.docker/cli-plugins/docker-compose"
-    chmod +x "$HOME/.docker/cli-plugins/docker-compose"
-  fi
+  # Install the official Compose plugin binary directly. This works on any
+  # distro (Amazon Linux, Ubuntu, etc.) without depending on a package
+  # manager having docker-compose-plugin available.
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64) ARCH="x86_64" ;;
+    aarch64|arm64) ARCH="aarch64" ;;
+  esac
+
+  CLI_PLUGINS_DIR="/usr/local/lib/docker/cli-plugins"
+  sudo mkdir -p "$CLI_PLUGINS_DIR"
+  sudo curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${ARCH}" \
+    -o "$CLI_PLUGINS_DIR/docker-compose"
+  sudo chmod +x "$CLI_PLUGINS_DIR/docker-compose"
+
+  # Also drop a copy under the invoking user's own cli-plugins dir in case
+  # Docker isn't configured to look at the system-wide plugin path.
+  mkdir -p "$HOME/.docker/cli-plugins"
+  cp "$CLI_PLUGINS_DIR/docker-compose" "$HOME/.docker/cli-plugins/docker-compose"
 fi
 
 echo "Docker Compose ready: $(docker compose version)"
