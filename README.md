@@ -170,9 +170,9 @@ docker compose up --build
 
 Services:
 
-* Frontend (Vite dev server): http://localhost:5173
-* Backend (Spring Boot, `mvn spring-boot:run`): http://localhost:4001
-* Database: MySQL 8, persisted in the `mysql_data` volume
+* Frontend (Vite dev server): http://localhost:8082
+* Backend (Spring Boot, `mvn spring-boot:run`): http://localhost:8083
+* Database: MySQL 8, persisted in the `mysql_data` volume, exposed on port 8084
 
 Everything runs with working defaults out of the box - no `.env` file is required. To customize
 credentials or secrets, copy `.env.example` to `.env` and edit the values; Docker Compose picks it

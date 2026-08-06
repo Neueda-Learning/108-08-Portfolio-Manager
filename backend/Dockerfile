@@ -7,5 +7,5 @@ RUN mvn -q dependency:go-offline -B
 
 COPY src ./src
 
-EXPOSE 4001
+EXPOSE 8083
 CMD ["mvn", "spring-boot:run"]

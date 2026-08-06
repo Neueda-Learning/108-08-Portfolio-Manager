@@ -3,17 +3,18 @@ services:
     image: mysql:8.0
     container_name: portfoliom-mysql
     restart: unless-stopped
+    command: ["--port=8084"]
     environment:
       MYSQL_DATABASE: ${DB_NAME:-portfoliom_db}
       MYSQL_USER: ${DB_USERNAME:-portfoliom}
       MYSQL_PASSWORD: ${DB_PASSWORD:-portfoliom}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-portfoliom_root}
     ports:
-      - "8084:3306"
+      - "8084:8084"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD:-portfoliom_root}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "8084", "-uroot", "-p${DB_ROOT_PASSWORD:-portfoliom_root}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -29,7 +30,9 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8083
       DB_HOST: mysql
+      DB_PORT: 8084
       DB_NAME: ${DB_NAME:-portfoliom_db}
       DB_USERNAME: ${DB_USERNAME:-portfoliom}
       DB_PASSWORD: ${DB_PASSWORD:-portfoliom}
@@ -40,7 +43,7 @@ services:
       MANAGER_USERNAME: ${MANAGER_USERNAME:-fundmanager}
       MANAGER_PASSWORD: ${MANAGER_PASSWORD:-FundManager123!}
     ports:
-      - "8083:4001"
+      - "8083:8083"
     volumes:
       - ./backend/src:/app/src
       - maven_repo:/root/.m2
@@ -56,7 +59,7 @@ services:
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8083}
     ports:
-      - "8082:5173"
+      - "8082:8082"
     volumes:
       - ./frontend:/app
       - /app/node_modules

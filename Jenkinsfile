@@ -60,7 +60,7 @@ pipeline {
             steps {
                 sh '''
                     for i in $(seq 1 10); do
-                        if curl -sf http://localhost:4001/actuator/health; then
+                        if curl -sf http://localhost:8083/actuator/health; then
                             exit 0
                         fi
                         sleep 5
