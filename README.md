@@ -1,42 +1,196 @@
 # 108-08-Portfolio-Manager
 
 Excel File Link : https://docs.google.com/spreadsheets/d/10w-M3sMVEzicuMOmBeUxVbo3azkRK2Wu-cRgqhG8PFM/edit?usp=sharing
+## 1. Purpose and Scope
+This document explains how the current `108-08-Portfolio-Manager` system is built and how requests flow across frontend, backend, database, security, and external integrations.
 
-## Current MVP implementation
-
-- Backend uses **Spring Boot + Spring JDBC + JdbcTemplate** with PostgreSQL (Supabase).
-- Role flow:
-  - **ADMIN/FUND_MANAGER**: manage customers and portfolios.
-  - **CUSTOMER**: view-only access for own portfolio endpoints.
-- Asset universe is **stock-only** for MVP and is seeded at app startup from:
-  - `core/src/main/resources/data/stocks.csv`
-- Frontend login uses **Supabase Auth** (email/password) and sends role headers to the backend.
-
-Required frontend env vars:
-
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-
-
-Project Architecture --------
-
-> **Fund Manager → manages multiple Customers → each customer has one or more portfolios → portfolios contain assets → dashboard compares performance against Sensex/index funds.
+The architecture now supports two role-based user journeys:
+- `OWNER` (customer): personal portfolio dashboard and holdings workflows
+- `FUND_MANAGER`: manages multiple customers and their portfolios via manager APIs and UI
 
 ---
 
-# Project Name
+## 2. Technology and Runtime Topology
 
-**Portfolio Management System**
+## Frontend
+- React + Vite SPA (`frontend/`)
+- Route protection and role-aware navigation (`ProtectedRoute`, `ManagerRoute`, `Sidebar`, `ManagerSidebar`)
+- Service layer for API abstraction (`frontend/src/services/*.js`)
 
-## Problem Statement
+## Backend
+- Spring Boot REST API (`backend/`)
+- Layered design: Controller -> Service -> Repository -> Model
+- JWT-based stateless authentication + role authorization
 
-A wealth management platform where fund managers can manage client investments, monitor portfolio performance, analyze returns against market benchmarks, and make portfolio adjustments.
+## Data
+- H2 file-based DB in development (`jdbc:h2:file:./data/portfoliomdb`)
+- JPA/Hibernate persistence
+- Field-level encryption for sensitive business values
+
+## External dependencies
+- Yahoo Finance for quote/history
+- RSS feeds for market news
+- Optional OpenAI-compatible endpoint for insights and image-based statement extraction
 
 ---
 
-# 1. User Roles
+## 3. End-to-End Flow (System Level)
 
-Instead of one user:
+```mermaid
+flowchart LR
+  U[Browser User] --> FE[React Frontend]
+  FE -->|HTTP /api + Bearer JWT| BE[Spring Boot API]
+  BE --> SRV[Service Layer]
+  SRV --> REPO[JPA Repositories]
+  REPO --> DB[(H2 file DB)]
+
+  SRV --> EXTQ[Yahoo Finance]
+  SRV --> EXTN[RSS Feeds]
+  SRV --> EXTAI[LLM API Optional]
+
+  BE --> BCACHE[Caffeine Caches]
+  FE --> FCACHE[In-memory UI Cache]
+```
+
+---
+
+## 4. Backend Architecture Flow
+
+## 4.1 Controller layer (API boundary)
+Key controllers under `backend/src/main/java/com/portfoliom/controller/`:
+- `AuthController`: login and current-user profile
+- `HoldingsController`: owner holdings/report/history/import/export workflows
+- `PortfolioController` + `HoldingController`: portfolio-scoped operations
+- `ManagerController`: fund manager customer administration + customer holdings management
+- `NewsController`, `InsightsController`: external enrichment endpoints
+
+## 4.2 Service layer (business logic)
+- `UserService`: auth, user lookup, role context
+- `CustomerService`: manager-facing customer lifecycle and summaries
+- `HoldingService`: merge-or-create, valuation, aggregate performance
+- `PortfolioService`: portfolio ownership and access-scoped retrieval
+- `PriceService` + `PriceLookupService`: current pricing with cache-backed calls
+- `PriceHistoryService` + `PriceSeriesFetcher`: trend series generation
+- `HoldingImportService` + `StatementScanService`: CSV/image import pipelines
+- `ExportService`: CSV and PDF report generation
+- `NewsService` + `RssFeedFetcher`: market/news feed aggregation
+- `InsightsService` + `ChatCompletionClient`: optional textual portfolio insights
+
+## 4.3 Persistence layer
+Repositories:
+- `UserRepository`
+- `PortfolioRepository`
+- `HoldingRepository`
+
+Core models:
+- `User` (includes role and manager linkage)
+- `Portfolio`
+- `Holding`
+- `Role` (`OWNER`, `FUND_MANAGER`)
+
+---
+
+## 5. Security and Authentication Flow
+
+## 5.1 Request filtering and authorization
+`SecurityConfig` defines a stateless filter chain:
+- Public: `/api/auth/**`, health/info, Swagger, H2 console
+- `hasRole("FUND_MANAGER")`: `/api/manager/**`
+- `hasRole("OWNER")`: `/api/portfolios/**`, `/api/holdings/**`
+- All others require authentication
+
+`JwtAuthFilter` validates bearer tokens and sets authentication context for downstream access control.
+
+## 5.2 Login flow
+1. Frontend posts credentials to `POST /api/auth/login`
+2. `UserService` validates credentials
+3. `JwtService.generateToken(username, role)` issues token
+4. Frontend stores token and loads `/api/auth/me`
+5. Frontend role state drives route and sidebar rendering (`isFundManager`)
+
+---
+
+## 6. Role-Based Functional Flows
+
+## 6.1 OWNER flow
+1. Login as owner
+2. Access dashboard (`/`) and holdings (`/holdings`)
+3. Frontend calls `/api/holdings`, `/api/holdings/history`, `/api/news`, optional `/api/insights/summary`
+4. Owner can add/update/delete/import/export holdings
+5. Backend computes performance and returns enriched portfolio views
+
+## 6.2 FUND_MANAGER flow
+1. Login as fund manager
+2. Access manager routes:
+   - `/manager`
+   - `/manager/customers/:customerId`
+   - `/manager/customers/:customerId/holdings`
+3. Frontend calls manager endpoints under `/api/manager/customers/**`
+4. Manager can create/delete customer accounts, manage customer holdings, and view customer-specific history/performance
+
+---
+
+## 7. Data Protection and Integrity
+
+## 7.1 Encrypted field persistence
+Sensitive fields use JPA attribute converters:
+- `EncryptedStringConverter`
+- `EncryptedBigDecimalConverter`
+- `EncryptedLocalDateConverter`
+
+`EncryptionKeyHolder` sources encryption key from environment (`app.encryption.key`) and provides runtime key material.
+
+## 7.2 Controlled defaults and seed data
+`DataSeeder` bootstraps baseline accounts and starter domain data (owner + manager defaults and sample holdings where configured), enabling immediate functional testing.
+
+---
+
+## 8. Caching and Performance Flow
+
+## Backend cache (`CacheConfig`)
+- Price cache for quote calls
+- Price-history cache for chart data
+- News cache for RSS pulls
+
+## Frontend cache
+- In-memory TTL cache in `frontend/src/utils/cache.js`
+- Holdings/history cache invalidated after mutations/imports
+
+This dual caching reduces external call frequency, improves dashboard responsiveness, and stabilizes perceived latency.
+
+---
+
+## 9. Integration Flows
+
+## Market price + history
+- Service layer calls Yahoo Finance endpoints
+- Fallbacks preserve UX if provider is unavailable
+
+## Market news
+- RSS feeds aggregated and scoped to holdings + general market context
+
+## AI-driven features (optional)
+- `InsightsService` generates plain-language summaries
+- `StatementScanService` extracts holding rows from uploaded images
+- Both features short-circuit cleanly when API credentials are not configured
+
+---
+
+## 10. Error Handling and Resilience
+
+## Backend resilience
+- `GlobalExceptionHandler` standardizes API error payloads
+- Validation and not-found exceptions return explicit messages
+- External integration failures are guarded to avoid total workflow failure
+
+## Frontend resilience
+- `apiClient.js` normalizes error extraction
+- 401 handling clears token and redirects to login
+- Pages show graceful empty/error states rather than failing hard
+
+
+
+
 
 ## Admin / Fund Manager
 
